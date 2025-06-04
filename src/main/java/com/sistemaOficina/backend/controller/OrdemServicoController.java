@@ -117,7 +117,7 @@ private double processarItensPeca(List<ItensPeca> itensPecaList, OrdemServico or
     double precoTotalPecas = 0;
 
     for (ItensPeca itensPecaRequest : itensPecaList) {
-        Pecas peca = pecasService.buscarPorId(itensPecaRequest.getIdPeca().getId());
+        Pecas peca = pecasService.buscarPorId(itensPecaRequest.getPeca().getId());
         int quantidadeUsada = itensPecaRequest.getQuantidade();
 
         if (quantidadeUsada > peca.getQuantidade()) {
@@ -198,16 +198,16 @@ private double processarItensServico(List<ItensServico> itensServicoList, OrdemS
     
         // Atualizar Itens de Peças
         for (ItensPeca itensPecaRequest : request.getItensPeca()) {
-            Pecas peca = pecasService.buscarPorId(itensPecaRequest.getIdPeca().getId());
+            Pecas peca = pecasService.buscarPorId(itensPecaRequest.getPeca().getId());
             if (peca == null) {
-                System.out.println("DEBUG: Peça não encontrada - ID: " + itensPecaRequest.getIdPeca().getId());
+                System.out.println("DEBUG: Peça não encontrada - ID: " + itensPecaRequest.getPeca().getId());
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Peça não encontrada");
             }
             
             
             // Recuperar a quantidade previamente usada na OS (se existir)
             int quantidadeAnterior = ordemServicoService.buscarQuantidadePorPecaEOrdemServico(
-                itensPecaRequest.getIdPeca().getId(), ordemServico.getNumero());
+                itensPecaRequest.getPeca().getId(), ordemServico.getNumero());
             
             // Calcular a diferença real
             int diferenca = itensPecaRequest.getQuantidade() - quantidadeAnterior;
