@@ -27,8 +27,8 @@ public class ItensServico {
     private double precoTotal;
     
     @ManyToOne
-    @JoinColumn(name = "id_funcionario")
-    private Funcionario idFuncionario;
+    @JoinColumn(name = "funcionario")
+    private Funcionario funcionario;
     
     @ManyToOne
     @JoinColumn(name = "id_servico")
@@ -42,14 +42,14 @@ public class ItensServico {
     }
 
     public ItensServico(Integer id, LocalTime horarioInicio, LocalTime horarioFim, int quantidade, 
-                        double precoTotal, Funcionario idFuncionario, Servico idServico, 
+                        double precoTotal, Funcionario funcionario, Servico idServico, 
                         OrdemServico numeroOs) {
         this.id = id;
         this.horarioInicio = horarioInicio;
         this.horarioFim = horarioFim;
         this.quantidade = quantidade;
         this.precoTotal = precoTotal;
-        this.idFuncionario = idFuncionario;
+        this.funcionario = funcionario;
         this.idServico = idServico;
         this.numeroOs = numeroOs;
     }
@@ -94,13 +94,7 @@ public class ItensServico {
         this.precoTotal = precoTotal;
     }
 
-    public Funcionario getIdFuncionario() {
-        return idFuncionario;
-    }
-
-    public void setIdFuncionario(Funcionario idFuncionario) {
-        this.idFuncionario = idFuncionario;
-    }
+  
 
     public Servico getIdServico() {
         return idServico;
@@ -116,5 +110,13 @@ public class ItensServico {
 
     public void setNumeroOs(OrdemServico numeroOs) {
         this.numeroOs = numeroOs;
+    }
+
+    public Funcionario getFuncionario() {
+        return funcionario;
+    }
+
+    public void setFuncionario(Funcionario funcionario) {
+        this.funcionario = funcionario;
     }
 }

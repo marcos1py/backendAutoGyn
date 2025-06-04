@@ -23,20 +23,20 @@ public class Veiculo {
     
     @ManyToOne
     @JoinColumn(name = "id_modelo")
-    private Modelo idModelo;
+    private Modelo modelo;
 
     public Veiculo() {
     }
 
     public Veiculo(String placa, int quilometragem, String chassi, String patrimonio, 
-                   int anoModelo, int anoFabricacao, Modelo idModelo) {
+                   int anoModelo, int anoFabricacao, Modelo modelo) {
         this.placa = placa;
         this.quilometragem = quilometragem;
         this.chassi = chassi;
         this.patrimonio = patrimonio;
         this.anoModelo = anoModelo;
         this.anoFabricacao = anoFabricacao;
-        this.idModelo = idModelo;
+        this.modelo = modelo;
     }
 
     public String getPlaca() {
@@ -87,11 +87,11 @@ public class Veiculo {
         this.anoFabricacao = anoFabricacao;
     }
 
-    public Modelo getIdModelo() {
-        return idModelo;
+    public Modelo getModelo() {
+        return modelo;
     }
 
-    public void setIdModelo(Modelo idModelo) {
-        this.idModelo = idModelo;
+    public void setModelo(Modelo modelo) {
+        this.modelo = modelo;
     }
 }

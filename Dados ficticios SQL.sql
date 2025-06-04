@@ -49,7 +49,7 @@ INSERT INTO public.marca (nome) VALUES
 ('Nissan');
 
 -- Inserindo dados na tabela modelo
-INSERT INTO public.modelo (nome, id_marca) VALUES
+INSERT INTO public.modelo (nome, marca) VALUES
 ('Corolla', 1),
 ('Civic', 2),
 ('Onix', 3),
@@ -89,7 +89,7 @@ INSERT INTO public.servico (nome, preco_unitario) VALUES
 ('Troca de óleo lubrificante', 80.00);
 
 -- Inserindo dados na tabela itens_peca
-INSERT INTO public.itens_peca (preco_total, numero_os, quantidade, id_peca) VALUES
+INSERT INTO public.itens_peca (preco_total, numero_os, quantidade, peca) VALUES
 (250.00, 1, 2, 1),
 (150.00, 2, 1, 2),
 (300.00, 3, 3, 3),
@@ -99,7 +99,7 @@ INSERT INTO public.itens_peca (preco_total, numero_os, quantidade, id_peca) VALU
 (400.00, 7, 4, 7);
 
 -- Inserindo dados na tabela itens_servico
-INSERT INTO public.itens_servico (horario_inicio, horario_fim, quantidade, preco_total, id_funcionario, id_servico, numero_os) VALUES
+INSERT INTO public.itens_servico (horario_inicio, horario_fim, quantidade, preco_total, funcionario, id_servico, numero_os) VALUES
 ('08:00:00', '10:00:00', 1, 1200.00, 1, 1, 1),
 ('09:00:00', '12:00:00', 1, 800.00, 2, 2, 2),
 ('13:00:00', '15:00:00', 1, 500.00, 3, 3, 3),

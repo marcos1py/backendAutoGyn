@@ -148,7 +148,7 @@ private double processarItensServico(List<ItensServico> itensServicoList, OrdemS
 
     for (ItensServico itensServicoRequest : itensServicoList) {
         Servico servico = servicoService.buscarPorId(itensServicoRequest.getIdServico().getId());
-        Funcionario funcionario = funcionarioService.buscarPorId(itensServicoRequest.getIdFuncionario().getId());
+        Funcionario funcionario = funcionarioService.buscarPorId(itensServicoRequest.getFuncionario().getId());
 
         double precoServicoTotal = itensServicoRequest.getQuantidade() * servico.getPrecoUnitario();
         precoTotalServicos += precoServicoTotal;
@@ -250,7 +250,7 @@ private double processarItensServico(List<ItensServico> itensServicoList, OrdemS
         // Atualizar Itens de Serviços
         for (ItensServico itensServicoRequest : request.getItensServico()) {
             Servico servico = servicoService.buscarPorId(itensServicoRequest.getIdServico().getId());
-            Funcionario funcionario = funcionarioService.buscarPorId(itensServicoRequest.getIdFuncionario().getId());
+            Funcionario funcionario = funcionarioService.buscarPorId(itensServicoRequest.getFuncionario().getId());
             if (servico == null || funcionario == null) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Serviço ou Funcionário não encontrado");
             }
