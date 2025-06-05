@@ -18,16 +18,16 @@ public class Modelo {
     private String nome;
     
     @ManyToOne
-    @JoinColumn(name = "id_marca")
-    private Marca idMarca;
+    @JoinColumn(name = "marca")
+    private Marca marca;
 
     public Modelo() {
     }
 
-    public Modelo(Integer id, String nome, Marca idMarca) {
+    public Modelo(Integer id, String nome, Marca marca) {
         this.id = id;
         this.nome = nome;
-        this.idMarca = idMarca;
+        this.marca = marca;
     }
 
     public Integer getId() {
@@ -46,11 +46,14 @@ public class Modelo {
         this.nome = nome;
     }
 
-    public Marca getIdMarca() {
-        return idMarca;
+    public Marca getMarca() {
+        return marca;
     }
 
-    public void setIdMarca(Marca idMarca) {
-        this.idMarca = idMarca;
+    public void setMarca(Marca marca) {
+        this.marca = marca;
     }
+
+
+    
 }

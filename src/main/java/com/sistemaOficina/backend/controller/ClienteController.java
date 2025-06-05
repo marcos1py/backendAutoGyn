@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sistemaOficina.backend.dto.ErrorResponse;
 import com.sistemaOficina.backend.entidade.Cliente;
 import com.sistemaOficina.backend.service.ClienteService;
 
@@ -27,19 +28,23 @@ public class ClienteController {
 
     // Cadastrar um novo cliente
     @PostMapping
-    public ResponseEntity<String> salvar(@RequestBody Cliente cliente) {
-        if (cliente.getTipoCliente() == null || cliente.getTipoCliente().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tipo de cliente é obrigatório.");
-        }
-        if ("PessoaFisica".equals(cliente.getTipoCliente()) && (cliente.getCpf() == null || cliente.getCpf().isEmpty())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("CPF é obrigatório para Pessoa Física.");
-        }
-        if ("PessoaJuridica".equals(cliente.getTipoCliente()) && (cliente.getCnpj() == null || cliente.getCnpj().isEmpty())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("CNPJ é obrigatório para Pessoa Jurídica.");
-        }
+    public ResponseEntity<?> salvar(@RequestBody Cliente cliente) {
+        try {
+            if (cliente.getTipoCliente() == null || cliente.getTipoCliente().isEmpty()) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Tipo de cliente é obrigatório"));
+            }
+            if ("PessoaFisica".equals(cliente.getTipoCliente()) && (cliente.getCpf() == null || cliente.getCpf().isEmpty())) {
+                return ResponseEntity.status(400).body(new ErrorResponse("CPF é obrigatório para Pessoa Física"));
+            }
+            if ("PessoaJuridica".equals(cliente.getTipoCliente()) && (cliente.getCnpj() == null || cliente.getCnpj().isEmpty())) {
+                return ResponseEntity.status(400).body(new ErrorResponse("CNPJ é obrigatório para Pessoa Jurídica"));
+            }
 
-        clienteService.salvar(cliente);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Cliente criado com sucesso.");
+            clienteService.salvar(cliente);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao criar cliente: " + e.getMessage()));
+        }
     }
 
     // Buscar todos os clientes
@@ -51,36 +56,44 @@ public class ClienteController {
 
     // Buscar cliente por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Cliente> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<?> buscarPorId(@PathVariable Integer id) {
         Cliente cliente = clienteService.buscarPorId(id);
         if (cliente == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(404).body(new ErrorResponse("Cliente não encontrado"));
         }
         return ResponseEntity.ok(cliente);
     }
 
     // Atualizar cliente
     @PutMapping("/{id}")
-    public ResponseEntity<String> atualizar(@PathVariable Integer id, @RequestBody Cliente cliente) {
+    public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody Cliente cliente) {
         Cliente clienteExistente = clienteService.buscarPorId(id);
         if (clienteExistente == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado.");
+            return ResponseEntity.status(404).body(new ErrorResponse("Cliente não encontrado"));
         }
 
-        cliente.setId(id);
-        clienteService.salvar(cliente);
-        return ResponseEntity.ok("Cliente atualizado com sucesso.");
+        try {
+            cliente.setId(id);
+            clienteService.salvar(cliente);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao atualizar cliente: " + e.getMessage()));
+        }
     }
 
     // Deletar cliente
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletar(@PathVariable Integer id) {
+    public ResponseEntity<?> deletar(@PathVariable Integer id) {
         Cliente clienteExistente = clienteService.buscarPorId(id);
         if (clienteExistente == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado.");
+            return ResponseEntity.status(404).body(new ErrorResponse("Cliente não encontrado"));
         }
 
-        clienteService.deletar(id);
-        return ResponseEntity.ok("Cliente deletado com sucesso.");
+        try {
+            clienteService.deletar(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao deletar cliente: " + e.getMessage()));
+        }
     }
 }

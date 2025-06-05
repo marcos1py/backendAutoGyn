@@ -35,14 +35,6 @@ public class OrdemServicoRequest {
         this.placaVeiculo = placaVeiculo;
     }
 
-    public Integer getIdCliente() {
-        return idCliente;
-    }
-
-    public void setIdCliente(Integer idCliente) {
-        this.idCliente = idCliente;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -66,4 +58,14 @@ public class OrdemServicoRequest {
     public void setItensServico(List<ItensServico> itensServico) {
         this.itensServico = itensServico;
     }
+
+    public Integer getIdCliente() {
+        return idCliente;
+    }
+
+    public void setIdCliente(Integer idCliente) {
+        this.idCliente = idCliente;
+    }
+
+    
 }

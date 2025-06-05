@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sistemaOficina.backend.dto.ErrorResponse;
 import com.sistemaOficina.backend.entidade.Acessorio;
 import com.sistemaOficina.backend.service.AcessorioService;
 
@@ -26,32 +27,53 @@ public class AcessorioController {
     }
 
     @PostMapping
-    public ResponseEntity<String> salvar(@RequestBody Acessorio acessorio) {
-        acessorioService.salvar(acessorio);
-        return ResponseEntity.ok("Acessório salvo com sucesso!");
+    public ResponseEntity<?> salvar(@RequestBody Acessorio acessorio) {
+        try {
+            acessorioService.salvar(acessorio);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao criar acessório: " + e.getMessage()));
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> atualizar(@PathVariable Integer id, @RequestBody Acessorio acessorio) {
-        acessorio.setId(id);
-        acessorioService.atualizar(acessorio);
-        return ResponseEntity.ok("Acessório atualizado com sucesso!");
+    public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody Acessorio acessorio) {
+        Acessorio acessorioExistente = acessorioService.buscarPorId(id);
+        if (acessorioExistente == null) {
+            return ResponseEntity.status(404).body(new ErrorResponse("Acessório não encontrado"));
+        }
+        
+        try {
+            acessorio.setId(id);
+            acessorioService.atualizar(acessorio);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao atualizar acessório: " + e.getMessage()));
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletar(@PathVariable Integer id) {
-        acessorioService.deletar(id);
-        return ResponseEntity.ok("Acessório deletado com sucesso!");
+    public ResponseEntity<?> deletar(@PathVariable Integer id) {
+        Acessorio acessorioExistente = acessorioService.buscarPorId(id);
+        if (acessorioExistente == null) {
+            return ResponseEntity.status(404).body(new ErrorResponse("Acessório não encontrado"));
+        }
+        
+        try {
+            acessorioService.deletar(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao deletar acessório: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Acessorio> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<?> buscarPorId(@PathVariable Integer id) {
         Acessorio acessorio = acessorioService.buscarPorId(id);
-        if (acessorio != null) {
-            return ResponseEntity.ok(acessorio);
-        } else {
-            return ResponseEntity.notFound().build();
+        if (acessorio == null) {
+            return ResponseEntity.status(404).body(new ErrorResponse("Acessório não encontrado"));
         }
+        return ResponseEntity.ok(acessorio);
     }
 
     @GetMapping

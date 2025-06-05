@@ -5,6 +5,7 @@ package com.sistemaOficina.backend.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,10 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.sistemaOficina.backend.dto.ErrorResponse;
 import com.sistemaOficina.backend.entidade.Funcionario;
 import com.sistemaOficina.backend.service.FuncionarioService;
 
@@ -31,46 +31,62 @@ public class FuncionarioController {
 
     // Método para salvar um funcionário (POST)
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public void salvar(@RequestBody Funcionario funcionario) {
-    	funcionario.toString();
-        funcionarioService.salvar(funcionario);
+    public ResponseEntity<?> salvar(@RequestBody Funcionario funcionario) {
+        try {
+            funcionarioService.salvar(funcionario);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao criar funcionário: " + e.getMessage()));
+        }
     }
 
     // Método para atualizar um funcionário (PUT)
     @PutMapping("/{id}")
-    public void atualizar(@PathVariable Integer id, @RequestBody Funcionario funcionario) {
+    public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody Funcionario funcionario) {
         Funcionario funcionarioExistente = funcionarioService.buscarPorId(id);
         if (funcionarioExistente == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Funcionário não encontrado");
+            return ResponseEntity.status(404).body(new ErrorResponse("Funcionário não encontrado"));
         }
-        funcionario.setId(funcionarioExistente.getId());
-        funcionarioService.atualizar(funcionario);
+        
+        try {
+            funcionario.setId(funcionarioExistente.getId());
+            funcionarioService.atualizar(funcionario);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao atualizar funcionário: " + e.getMessage()));
+        }
     }
 
     // Método para deletar um funcionário (DELETE)
     @DeleteMapping("/{id}")
-    public void deletar(@PathVariable Integer id) {
+    public ResponseEntity<?> deletar(@PathVariable Integer id) {
         Funcionario funcionario = funcionarioService.buscarPorId(id);
         if (funcionario == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Funcionário não encontrado");
+            return ResponseEntity.status(404).body(new ErrorResponse("Funcionário não encontrado"));
         }
-        funcionarioService.deletar(id);
+        
+        try {
+            funcionarioService.deletar(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao deletar funcionário: " + e.getMessage()));
+        }
     }
 
     // Método para buscar um funcionário por ID (GET)
     @GetMapping("/{id}")
-    public Funcionario buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<?> buscarPorId(@PathVariable Integer id) {
         Funcionario funcionario = funcionarioService.buscarPorId(id);
         if (funcionario == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Funcionário não encontrado");
+            return ResponseEntity.status(404).body(new ErrorResponse("Funcionário não encontrado"));
         }
-        return funcionario;
+        return ResponseEntity.ok(funcionario);
     }
 
     // Método para buscar todos os funcionários (GET)
     @GetMapping
-    public List<Funcionario> buscarTodos() {
-        return funcionarioService.buscarTodos();
+    public ResponseEntity<List<Funcionario>> buscarTodos() {
+        List<Funcionario> funcionarios = funcionarioService.buscarTodos();
+        return ResponseEntity.ok(funcionarios);
     }
 }

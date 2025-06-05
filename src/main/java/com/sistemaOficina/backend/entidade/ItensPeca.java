@@ -25,18 +25,18 @@ public class ItensPeca {
     private OrdemServico numeroOs;
     
     @ManyToOne
-    @JoinColumn(name = "id_peca")
-    private Pecas idPeca;
+    @JoinColumn(name = "peca")
+    private Pecas peca;
 
     public ItensPeca() {
     }
 
-    public ItensPeca(Integer id, double precoTotal, int quantidade, OrdemServico numeroOs, Pecas idPeca) {
+    public ItensPeca(Integer id, double precoTotal, int quantidade, OrdemServico numeroOs, Pecas peca) {
         this.id = id;
         this.precoTotal = precoTotal;
         this.quantidade = quantidade;
         this.numeroOs = numeroOs;
-        this.idPeca = idPeca;
+        this.peca = peca;
     }
 
     public Integer getId() {
@@ -71,11 +71,13 @@ public class ItensPeca {
         this.numeroOs = numeroOs;
     }
 
-    public Pecas getIdPeca() {
-        return idPeca;
+    public Pecas getPeca() {
+        return peca;
     }
 
-    public void setIdPeca(Pecas idPeca) {
-        this.idPeca = idPeca;
+    public void setPeca(Pecas peca) {
+        this.peca = peca;
     }
+
+
 }

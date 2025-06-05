@@ -26,8 +26,8 @@ public class Propriedade {
     private LocalDate dataFim;
     
     @ManyToOne
-    @JoinColumn(name = "id_cliente")
-    private Cliente idCliente;
+    @JoinColumn(name = "cliente")
+    private Cliente cliente;
     
     @ManyToOne
     @JoinColumn(name = "placa_veiculo")
@@ -36,11 +36,11 @@ public class Propriedade {
     public Propriedade() {
     }
 
-    public Propriedade(Integer id, LocalDate dataInicio, LocalDate dataFim, Cliente idCliente, Veiculo placaVeiculo) {
+    public Propriedade(Integer id, LocalDate dataInicio, LocalDate dataFim, Cliente cliente, Veiculo placaVeiculo) {
         this.id = id;
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
-        this.idCliente = idCliente;
+        this.cliente = cliente;
         this.placaVeiculo = placaVeiculo;
     }
 
@@ -68,13 +68,7 @@ public class Propriedade {
         this.dataFim = dataFim;
     }
 
-    public Cliente getIdCliente() {
-        return idCliente;
-    }
-
-    public void setIdCliente(Cliente idCliente) {
-        this.idCliente = idCliente;
-    }
+  
 
     public Veiculo getPlacaVeiculo() {
         return placaVeiculo;
@@ -82,5 +76,13 @@ public class Propriedade {
 
     public void setPlacaVeiculo(Veiculo placaVeiculo) {
         this.placaVeiculo = placaVeiculo;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 }

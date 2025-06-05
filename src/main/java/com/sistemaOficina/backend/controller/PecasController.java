@@ -1,6 +1,5 @@
 package com.sistemaOficina.backend.controller;
 
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sistemaOficina.backend.dto.ErrorResponse;
 import com.sistemaOficina.backend.entidade.Pecas;
 import com.sistemaOficina.backend.service.PecasService;
 
@@ -37,43 +37,56 @@ public class PecasController {
 
     // Buscar peça por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Pecas> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<?> buscarPorId(@PathVariable Integer id) {
         Pecas pecas = pecasService.buscarPorId(id);
         if (pecas == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(404).body(new ErrorResponse("Peça não encontrada"));
         }
         return ResponseEntity.ok(pecas);
     }
 
     // Criar nova peça
     @PostMapping
-    public ResponseEntity<Void> criarPeca(@RequestBody Pecas novaPeca) {
-        pecasService.salvar(novaPeca);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> criarPeca(@RequestBody Pecas novaPeca) {
+        try {
+            pecasService.salvar(novaPeca);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao criar peça: " + e.getMessage()));
+        }
     }
 
     // Atualizar uma peça existente
     @PutMapping("/{id}")
-    public ResponseEntity<Void> atualizarPeca(@PathVariable Integer id, @RequestBody Pecas pecaAtualizada) {
+    public ResponseEntity<?> atualizarPeca(@PathVariable Integer id, @RequestBody Pecas pecaAtualizada) {
         Pecas pecaExistente = pecasService.buscarPorId(id);
         if (pecaExistente == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(404).body(new ErrorResponse("Peça não encontrada"));
         }
 
-        pecaAtualizada.setId(pecaExistente.getId());
-        pecasService.atualizar(pecaAtualizada);
-        return ResponseEntity.ok().build();
+        try {
+            pecaAtualizada.setId(pecaExistente.getId());
+            pecasService.atualizar(pecaAtualizada);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao atualizar peça: " + e.getMessage()));
+        }
     }
 
     // Deletar uma peça
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarPeca(@PathVariable Integer id) {
+    public ResponseEntity<?> deletarPeca(@PathVariable Integer id) {
         Pecas pecaExistente = pecasService.buscarPorId(id);
         if (pecaExistente == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(404).body(new ErrorResponse("Peça não encontrada"));
         }
 
-        pecasService.deletar(id);
-        return ResponseEntity.noContent().build();
+        try {
+            pecasService.deletar(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao deletar peça: " + e.getMessage()));
+
+        }
     }
 }
