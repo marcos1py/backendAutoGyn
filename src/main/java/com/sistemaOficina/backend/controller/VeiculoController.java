@@ -1,15 +1,21 @@
 package com.sistemaOficina.backend.controller;
 
-
-import com.sistemaOficina.backend.entidade.Veiculo;
-import com.sistemaOficina.backend.service.VeiculoService;
-
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.sistemaOficina.backend.dto.ErrorResponse;
+import com.sistemaOficina.backend.entidade.Veiculo;
+import com.sistemaOficina.backend.service.VeiculoService;
 
 @RestController
 @RequestMapping("/api/veiculos")
@@ -21,38 +27,58 @@ public class VeiculoController {
         this.veiculoService = veiculoService;
     }
 
-    // Método para salvar um veículo (POST)
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED) 
-    public void salvar(@RequestBody Veiculo veiculo) {
-        veiculoService.salvar(veiculo);
+    public ResponseEntity<?> salvar(@RequestBody Veiculo veiculo) {
+        try {
+            veiculoService.salvar(veiculo);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao criar veículo: " + e.getMessage()));
+        }
     }
 
-    // Método para atualizar um veículo (PUT)
     @PutMapping("/{placa}")
-    public void atualizar(@PathVariable String placa, @RequestBody Veiculo veiculo) {
-        veiculoService.atualizar(placa, veiculo);
+    public ResponseEntity<?> atualizar(@PathVariable String placa, @RequestBody Veiculo veiculo) {
+        Veiculo veiculoExistente = veiculoService.buscarPorPlaca(placa);
+        if (veiculoExistente == null) {
+            return ResponseEntity.status(404).body(new ErrorResponse("Veículo não encontrado"));
+        }
+        
+        try {
+            veiculoService.atualizar(placa, veiculo);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao atualizar veículo: " + e.getMessage()));
+        }
     }
 
-    // Método para deletar um veículo (DELETE)
     @DeleteMapping("/{placa}")
-    public void deletar(@PathVariable String placa) {
-        veiculoService.deletar(placa);
+    public ResponseEntity<?> deletar(@PathVariable String placa) {
+        Veiculo veiculoExistente = veiculoService.buscarPorPlaca(placa);
+        if (veiculoExistente == null) {
+            return ResponseEntity.status(404).body(new ErrorResponse("Veículo não encontrado"));
+        }
+        
+        try {
+            veiculoService.deletar(placa);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(new ErrorResponse("Erro ao deletar veículo: " + e.getMessage()));
+        }
     }
 
-    // Método para buscar um veículo por placa (GET)
     @GetMapping("/{placa}")
-    public Veiculo buscarPorPlaca(@PathVariable String placa) {
+    public ResponseEntity<?> buscarPorPlaca(@PathVariable String placa) {
         Veiculo veiculo = veiculoService.buscarPorPlaca(placa);
         if (veiculo == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Veículo não encontrado");
+            return ResponseEntity.status(404).body(new ErrorResponse("Veículo não encontrado"));
         }
-        return veiculo; // Retorna o veículo encontrado
+        return ResponseEntity.ok(veiculo);
     }
 
-    // Método para buscar todos os veículos (GET)
     @GetMapping
-    public List<Veiculo> buscarTodos() {
-        return veiculoService.buscarTodos(); // Retorna uma lista de todos os veículos
+    public ResponseEntity<List<Veiculo>> buscarTodos() {
+        List<Veiculo> veiculos = veiculoService.buscarTodos();
+        return ResponseEntity.ok(veiculos);
     }
 }
