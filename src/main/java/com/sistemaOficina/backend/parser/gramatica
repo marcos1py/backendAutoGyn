@@ -1,0 +1,12 @@
+S -> ES'
+S' -> & | O E
+E -> (E) E' | B1 E' | B2 E' | B3 E'
+E' -> O E E' | ε
+O -> + | -
+B1 -> vendas de M
+B2 -> vendas do N em M  
+B3 -> vendas do N
+N -> "N'"
+N' -> LN' | ε
+L -> a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z | ' '
+M -> Janeiro | Fevereiro | Março | Abril | Maio | Junho | Julho | Agosto | Setembro | Outubro | Novembro | Dezembro
