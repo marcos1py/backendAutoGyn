@@ -1,13 +1,8 @@
 package com.sistemaOficina.backend.entidade;
 
-import java.time.LocalDate;
+import jakarta.persistence.*;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "funcionario")
@@ -17,7 +12,7 @@ public class Funcionario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String nome;
-    private String salario;
+    private Double salario;
     @Column(name = "data_nascimento")
     private LocalDate dataNascimento;
     @Column(name = "data_admissao")
@@ -36,7 +31,7 @@ public class Funcionario {
     public Funcionario() {
     }
 
-    public Funcionario(Integer id, String nome, String salario, LocalDate dataNascimento, 
+    public Funcionario(Integer id, String nome, Double salario, LocalDate dataNascimento,
                        LocalDate dataAdmissao, LocalDate dataDemissao, String cargo, 
                        String endereco, String telefone, String email, String cpf, 
                        String rg, String situacao) {
@@ -71,11 +66,11 @@ public class Funcionario {
         this.nome = nome;
     }
 
-    public String getSalario() {
+    public Double getSalario() {
         return salario;
     }
 
-    public void setSalario(String salario) {
+    public void setSalario(Double salario) {
         this.salario = salario;
     }
 
