@@ -1,5 +1,6 @@
 package com.sistemaOficina.backend.parser.estrutura;
 
+// Padrao composite
 public class ConsultaCompleta {
     private ExpressaoVendas expressaoPrincipal;
     private String terminador;

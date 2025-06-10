@@ -37,8 +37,8 @@ public class ParserConsultaVendas {
     }
 
     private static final Set<String> MESES_VALIDOS = Set.of(
-        "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-        "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+        "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
+        "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"
     );
 
     public ParserConsultaVendas() {
@@ -145,7 +145,7 @@ public class ParserConsultaVendas {
                 break;
             default:
 
-                if (MESES_VALIDOS.contains(palavra)) {
+                if (MESES_VALIDOS.contains(palavra.toUpperCase())) {
                     tokens.add(new Token(Token.Tipo.MES, palavra));
                 } else {
 
