@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 10px; }
+        header, footer { position: fixed; width: 100%; }
+        header { top: 0; }
+        footer { bottom: 0; font-size: 8px; text-align: center; }
+        .content { margin-top: 80px; margin-bottom: 40px; }
+        h1 { font-size: 16px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #333; padding: 4px; }
+        .right { text-align: right; }
+    </style>
+</head>
+<body>
+
+
+<div class="content">
+    <h1>Ordem de Serviço nº <span th:text="${os.numero}"></span></h1>
+    <p th:text="${os.data}"></p>
+
+    <h2>Cliente</h2>
+    <p>
+        <strong th:text="${cliente.nome}"></strong><br/>
+        <span th:text="${cliente.logradouro + ', ' + cliente.numero}"></span>
+        <span th:if="${cliente.complemento != null && !cliente.complemento.isEmpty()}" th:text="${' - ' + cliente.complemento}"></span><br/>
+        <span th:if="${cliente.cpf != null && !cliente.cpf.isEmpty()}">CPF: <span th:text="${cliente.cpf}"></span></span>
+        <span th:if="${cliente.cnpj != null && !cliente.cnpj.isEmpty()}">CNPJ: <span th:text="${cliente.cnpj}"></span></span><br/>
+        Telefone: <span th:text="${cliente.numero1}"></span>
+    </p>
+
+    <h2>Veículo</h2>
+    <p>
+        Modelo: <span th:text="${veiculo.modelo.nome}"></span><br/>
+        Placa: <span th:text="${veiculo.placa}"></span><br/>
+        Quilometragem: <span th:text="${veiculo.quilometragem}"></span> km
+    </p>
+
+    <h2>Peças a Substituir</h2>
+    <table>
+        <thead>
+        <tr><th>#</th><th>Peça</th><th class="right">Qtd.</th><th class="right">Total R$</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="item,idx : ${itensPeca}">
+            <td th:text="${idx.count}"></td>
+            <td th:text="${item.peca.nome}"></td>
+            <td class="right" th:text="${item.quantidade}"></td>
+            <td class="right" th:text="${item.precoTotal}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>Serviços a Executar</h2>
+    <table>
+        <thead>
+        <tr><th>#</th><th>Serviço</th><th class="right">Total R$</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="item,idx : ${itensServico}">
+            <td th:text="${idx.count}"></td>
+            <td th:text="${item.idServico.nome}"></td>
+            <td class="right" th:text="${item.precoTotal}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2 class="right">Total Geral: R$ <span th:text="${os.precoFinal}"></span></h2>
+</div>
+<footer>
+    <span>Gerado em: <span th:text="${#temporals.format(now, 'dd/MM/yyyy HH:mm')}"></span></span>
+</footer>
+</body>
+</html>
