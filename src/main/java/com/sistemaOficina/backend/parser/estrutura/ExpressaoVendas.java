@@ -52,4 +52,5 @@ public class ExpressaoVendas {
     public List<OperacaoEExpressao> obterOperacoesAdicionais() { 
         return new ArrayList<>(operacoesAdicionais); 
     }
+
 }

@@ -1,5 +1,5 @@
 package com.sistemaOficina.backend.parser.estrutura;
 
-enum TipoOperacao {
+public enum TipoOperacao {
     SOMA, SUBTRACAO
 }
