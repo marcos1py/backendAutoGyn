@@ -273,14 +273,14 @@ public class ParserConsultaVendas {
         }
     }
 
-    public void mostrarTokens(String consulta) {
-        this.entrada = consulta.trim();
-        this.tokens.clear();
-        tokenizar();
+    // public void debug(String consulta) {
+    //     this.entrada = consulta.trim();
+    //     this.tokens.clear();
+    //     tokenizar();
 
-        System.out.println("Tokens gerados para: \"" + consulta + "\"");
-        for (int i = 0; i < tokens.size(); i++) {
-            System.out.println(i + ": " + tokens.get(i));
-        }
-    }
+    //     System.out.println("Tokens gerados para: \"" + consulta + "\"");
+    //     for (int i = 0; i < tokens.size(); i++) {
+    //         System.out.println(i + ": " + tokens.get(i));
+    //     }
+    // }
 }
