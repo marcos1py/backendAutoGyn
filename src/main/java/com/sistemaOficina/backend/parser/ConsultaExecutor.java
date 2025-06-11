@@ -34,7 +34,12 @@ public class ConsultaExecutor {
             throw new IllegalArgumentException("Template de execução não pode ser nulo");
         }
         
-        List<T> resultado = search(expressao, template);
+        List<T> resultado;
+        if (!expressao.isExpressaoParenteses()) {
+            resultado = search(expressao, template);
+        } else {
+            resultado = execute(expressao.getExpressaoInterna(), template);
+        }
         
         if (resultado == null) {
             resultado = new ArrayList<>();
@@ -63,11 +68,6 @@ public class ConsultaExecutor {
         
         return resultado;
     }
-
-    // private boolean canSearch(ExpressaoVendas consulta) {
-    //     return consulta != null &&
-    //     (consulta.isVendasPorMes() || consulta.isVendasPorVendedor() || consulta.isVendasPorVendedorEMes());
-    // }
 
     private <T> List<T> search(ExpressaoVendas consulta, TemplateExecucaoConsulta template) {
         if (consulta.isVendasPorMes()) {
