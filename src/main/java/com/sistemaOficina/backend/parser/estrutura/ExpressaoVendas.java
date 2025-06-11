@@ -35,21 +35,21 @@ public class ExpressaoVendas {
         this.operacoesAdicionais = new ArrayList<>();
     }
     
-    public boolean ehExpressaoParenteses() { return tipo == TipoExpressao.PARENTESES; }
-    public boolean ehVendasPorMes() { return tipo == TipoExpressao.VENDAS_MES; }
-    public boolean ehVendasPorVendedorEMes() { return tipo == TipoExpressao.VENDAS_VENDEDOR_MES; }
-    public boolean ehVendasPorVendedor() { return tipo == TipoExpressao.VENDAS_VENDEDOR; }
+    public boolean isExpressaoParenteses() { return tipo == TipoExpressao.PARENTESES; }
+    public boolean isVendasPorMes() { return tipo == TipoExpressao.VENDAS_MES; }
+    public boolean isVendasPorVendedorEMes() { return tipo == TipoExpressao.VENDAS_VENDEDOR_MES; }
+    public boolean isVendasPorVendedor() { return tipo == TipoExpressao.VENDAS_VENDEDOR; }
     
-    public ExpressaoVendas obterExpressaoInterna() { return expressaoInterna; }
-    public ConsultaVendasMes obterVendasMes() { return vendasMes; }
-    public ConsultaVendasVendedorMes obterVendasVendedorMes() { return vendasVendedorMes; }
-    public ConsultaVendasVendedor obterVendasVendedor() { return vendasVendedor; }
+    public ExpressaoVendas getExpressaoInterna() { return expressaoInterna; }
+    public ConsultaVendasMes getVendasMes() { return vendasMes; }
+    public ConsultaVendasVendedorMes getVendasVendedorMes() { return vendasVendedorMes; }
+    public ConsultaVendasVendedor getVendasVendedor() { return vendasVendedor; }
     
     public void adicionarOperacao(OperacaoEExpressao operacao) {
         operacoesAdicionais.add(operacao);
     }
     
-    public List<OperacaoEExpressao> obterOperacoesAdicionais() { 
+    public List<OperacaoEExpressao> getOperacoesAdicionais() { 
         return new ArrayList<>(operacoesAdicionais); 
     }
 

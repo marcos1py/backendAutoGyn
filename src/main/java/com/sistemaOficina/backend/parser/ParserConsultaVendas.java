@@ -2,7 +2,6 @@ package com.sistemaOficina.backend.parser;
 
 import java.util.*;
 
-import com.sistemaOficina.backend.parser.estrutura.ConsultaCompleta;
 import com.sistemaOficina.backend.parser.estrutura.ConsultaVendasMes;
 import com.sistemaOficina.backend.parser.estrutura.ConsultaVendasVendedor;
 import com.sistemaOficina.backend.parser.estrutura.ConsultaVendasVendedorMes;
@@ -46,7 +45,7 @@ public class ParserConsultaVendas {
         this.posicaoAtual = 0;
     }
 
-    public ConsultaCompleta parse(String consulta) {
+    public ExpressaoVendas parse(String consulta) {
         if (consulta == null || consulta.trim().isEmpty()) {
             throw new IllegalArgumentException("Consulta não pode ser vazia");
         }
@@ -155,14 +154,14 @@ public class ParserConsultaVendas {
         }
     }
 
-    private ConsultaCompleta parseConsultaCompleta() {
+    private ExpressaoVendas parseConsultaCompleta() {
         ExpressaoVendas expressao = parseExpressao();
 
         if (!tokenAtual().tipo.equals(Token.Tipo.FIM)) {
             throw new IllegalArgumentException("Esperado fim da consulta (&), encontrado: " + tokenAtual().valor);
         }
 
-        return new ConsultaCompleta(expressao);
+        return expressao;
     }
 
     private ExpressaoVendas parseExpressao() {
@@ -184,7 +183,6 @@ public class ParserConsultaVendas {
     }
 
     private ExpressaoVendas parseTermo() {
-
         if (tokenAtual().tipo.equals(Token.Tipo.ABRE_PAREN)) {
             avancar(); 
             ExpressaoVendas expressaoInterna = parseExpressao();
@@ -194,7 +192,7 @@ public class ParserConsultaVendas {
             }
             avancar(); 
 
-            return new ExpressaoVendas(expressaoInterna);
+            return new ExpressaoVendas(expressaoInterna); 
         }
 
         return parseConsultaBase();
@@ -273,14 +271,4 @@ public class ParserConsultaVendas {
         }
     }
 
-    // public void debug(String consulta) {
-    //     this.entrada = consulta.trim();
-    //     this.tokens.clear();
-    //     tokenizar();
-
-    //     System.out.println("Tokens gerados para: \"" + consulta + "\"");
-    //     for (int i = 0; i < tokens.size(); i++) {
-    //         System.out.println(i + ": " + tokens.get(i));
-    //     }
-    // }
 }

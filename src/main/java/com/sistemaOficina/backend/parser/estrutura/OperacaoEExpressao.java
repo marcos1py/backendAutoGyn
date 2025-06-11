@@ -9,9 +9,9 @@ public class OperacaoEExpressao {
         this.expressao = expressao;
     }
     
-    public TipoOperacao obterOperacao() { return operacao; }
-    public ExpressaoVendas obterExpressao() { return expressao; }
+    public TipoOperacao getOperacao() { return operacao; }
+    public ExpressaoVendas getExpressao() { return expressao; }
     
-    public boolean ehSoma() { return operacao == TipoOperacao.SOMA; }
-    public boolean ehSubtracao() { return operacao == TipoOperacao.SUBTRACAO; }
+    public boolean isSoma() { return operacao == TipoOperacao.SOMA; }
+    public boolean isSubtracao() { return operacao == TipoOperacao.SUBTRACAO; }
 }

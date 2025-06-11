@@ -9,11 +9,11 @@ public class ConsultaVendasVendedorMes {
         this.mes = mes;
     }
     
-    public NomeVendedor obterVendedor() { return vendedor; }
-    public Mes obterMes() { return mes; }
+    public NomeVendedor getVendedor() { return vendedor; }
+    public Mes getMes() { return mes; }
     
     @Override
     public String toString() {
-        return "vendas do " + vendedor.obterNome() + " em " + mes.obterNome();
+        return "vendas do " + vendedor.getNome() + " em " + mes.getNome();
     }
 }

@@ -16,7 +16,7 @@ public class Mes {
         this.nome = nome;
     }
     
-    public String obterNome() { return nome; }
+    public String getNome() { return nome; }
     
     @Override
     public boolean equals(Object obj) {

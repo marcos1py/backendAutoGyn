@@ -7,7 +7,7 @@ public class NomeVendedor {
         this.nome = nome.trim();
     }
     
-    public String obterNome() { return nome; }
+    public String getNome() { return nome; }
     
     @Override
     public boolean equals(Object obj) {

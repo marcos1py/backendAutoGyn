@@ -2,13 +2,13 @@ package com.sistemaOficina.backend.parser;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.sistemaOficina.backend.parser.estrutura.ConsultaCompleta;
+import com.sistemaOficina.backend.parser.estrutura.ExpressaoVendas;
 
 public class Main {
     public static void main(String[] args) {
         try {
             ParserConsultaVendas parser = new ParserConsultaVendas();
-            ConsultaCompleta resultado = parser.parse("vendas do \"joao\" - vendas do \"maria\" + vendas de Janeiro");
+            ExpressaoVendas resultado = parser.parse("(vendas do \"joao\" - vendas do \"maria\" + vendas de Janeiro - (vendas do \"maria\" + vendas de Janeiro))+ vendas do \"maria\"");
             
             Gson gson = new GsonBuilder()
                 .setPrettyPrinting()

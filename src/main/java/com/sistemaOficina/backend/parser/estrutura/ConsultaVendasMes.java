@@ -7,10 +7,10 @@ public class ConsultaVendasMes {
         this.mes = mes;
     }
     
-    public Mes obterMes() { return mes; }
+    public Mes getMes() { return mes; }
     
     @Override
     public String toString() {
-        return "vendas de " + mes.obterNome();
+        return "vendas de " + mes.getNome();
     }
 }

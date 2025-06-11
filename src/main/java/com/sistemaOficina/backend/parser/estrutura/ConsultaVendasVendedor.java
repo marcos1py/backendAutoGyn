@@ -7,10 +7,10 @@ public class ConsultaVendasVendedor {
         this.vendedor = vendedor;
     }
     
-    public NomeVendedor obterVendedor() { return vendedor; }
+    public NomeVendedor getVendedor() { return vendedor; }
     
     @Override
     public String toString() {
-        return "vendas do " + vendedor.obterNome();
+        return "vendas do " + vendedor.getNome();
     }
 }
