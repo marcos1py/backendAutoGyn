@@ -1,9 +1,9 @@
 package com.sistemaOficina.backend.parser.estrutura;
 
-public class NomeVendedor {
+public class NomePrestador {
     private String nome;
     
-    public NomeVendedor(String nome) {
+    public NomePrestador(String nome) {
         this.nome = nome.trim();
     }
     
@@ -11,7 +11,7 @@ public class NomeVendedor {
     
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof NomeVendedor && ((NomeVendedor) obj).nome.equals(this.nome);
+        return obj instanceof NomePrestador && ((NomePrestador) obj).nome.equals(this.nome);
     }
     
     @Override

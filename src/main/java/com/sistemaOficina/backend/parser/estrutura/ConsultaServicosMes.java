@@ -1,9 +1,9 @@
 package com.sistemaOficina.backend.parser.estrutura;
 
-public class ConsultaVendasMes {
+public class ConsultaServicosMes {
     private Mes mes;
     
-    public ConsultaVendasMes(Mes mes) {
+    public ConsultaServicosMes(Mes mes) {
         this.mes = mes;
     }
     
@@ -11,6 +11,6 @@ public class ConsultaVendasMes {
     
     @Override
     public String toString() {
-        return "vendas de " + mes.getNome();
+        return "serviços de " + mes.getNome();
     }
 }

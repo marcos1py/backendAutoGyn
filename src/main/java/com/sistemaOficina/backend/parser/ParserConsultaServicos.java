@@ -2,23 +2,23 @@ package com.sistemaOficina.backend.parser;
 
 import java.util.*;
 
-import com.sistemaOficina.backend.parser.estrutura.ConsultaVendasMes;
-import com.sistemaOficina.backend.parser.estrutura.ConsultaVendasVendedor;
-import com.sistemaOficina.backend.parser.estrutura.ConsultaVendasVendedorMes;
-import com.sistemaOficina.backend.parser.estrutura.ExpressaoVendas;
+import com.sistemaOficina.backend.parser.estrutura.ConsultaServicosMes;
+import com.sistemaOficina.backend.parser.estrutura.ConsultaServicosPrestador;
+import com.sistemaOficina.backend.parser.estrutura.ConsultaServicosPrestadorMes;
+import com.sistemaOficina.backend.parser.estrutura.ExpressaoServicos;
 import com.sistemaOficina.backend.parser.estrutura.Mes;
-import com.sistemaOficina.backend.parser.estrutura.NomeVendedor;
+import com.sistemaOficina.backend.parser.estrutura.NomePrestador;
 import com.sistemaOficina.backend.parser.estrutura.OperacaoEExpressao;
 import com.sistemaOficina.backend.parser.estrutura.TipoOperacao;
 
-public class ParserConsultaVendas {
+public class ParserConsultaServicos {
     private String entrada;
     private int posicaoAtual;
     private List<Token> tokens;
 
     private static class Token {
         enum Tipo { 
-            VENDAS, DE, DO, EM, OPERADOR, MES, NOME, ABRE_PAREN, FECHA_PAREN, FIM, ASPAS 
+            SERVICOS, DE, DO, EM, OPERADOR, MES, NOME, ABRE_PAREN, FECHA_PAREN, FIM, ASPAS 
         }
 
         Tipo tipo;
@@ -40,12 +40,12 @@ public class ParserConsultaVendas {
         "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"
     );
 
-    public ParserConsultaVendas() {
+    public ParserConsultaServicos() {
         this.tokens = new ArrayList<>();
         this.posicaoAtual = 0;
     }
 
-    public ExpressaoVendas parse(String consulta) {
+    public ExpressaoServicos parse(String consulta) {
         if (consulta == null || consulta.trim().isEmpty()) {
             throw new IllegalArgumentException("Consulta não pode ser vazia");
         }
@@ -130,8 +130,9 @@ public class ParserConsultaVendas {
 
     private void classificarPalavra(String palavra) {
         switch (palavra.toLowerCase()) {
-            case "vendas":
-                tokens.add(new Token(Token.Tipo.VENDAS, palavra));
+            case "servicos":
+            case "serviços":
+                tokens.add(new Token(Token.Tipo.SERVICOS, palavra));
                 break;
             case "de":
                 tokens.add(new Token(Token.Tipo.DE, palavra));
@@ -143,19 +144,17 @@ public class ParserConsultaVendas {
                 tokens.add(new Token(Token.Tipo.EM, palavra));
                 break;
             default:
-
                 if (MESES_VALIDOS.contains(palavra.toUpperCase())) {
                     tokens.add(new Token(Token.Tipo.MES, palavra));
                 } else {
-
                     tokens.add(new Token(Token.Tipo.NOME, palavra));
                 }
                 break;
         }
     }
 
-    private ExpressaoVendas parseConsultaCompleta() {
-        ExpressaoVendas expressao = parseExpressao();
+    private ExpressaoServicos parseConsultaCompleta() {
+        ExpressaoServicos expressao = parseExpressao();
 
         if (!tokenAtual().tipo.equals(Token.Tipo.FIM)) {
             throw new IllegalArgumentException("Esperado fim da consulta (&), encontrado: " + tokenAtual().valor);
@@ -164,8 +163,8 @@ public class ParserConsultaVendas {
         return expressao;
     }
 
-    private ExpressaoVendas parseExpressao() {
-        ExpressaoVendas termo = parseTermo();
+    private ExpressaoServicos parseExpressao() {
+        ExpressaoServicos termo = parseTermo();
 
         while (posicaoAtual < tokens.size() && 
                tokenAtual().tipo.equals(Token.Tipo.OPERADOR)) {
@@ -174,7 +173,7 @@ public class ParserConsultaVendas {
                 TipoOperacao.SOMA : TipoOperacao.SUBTRACAO;
             avancar(); 
 
-            ExpressaoVendas proximoTermo = parseTermo();
+            ExpressaoServicos proximoTermo = parseTermo();
             OperacaoEExpressao operacaoEExpressao = new OperacaoEExpressao(operacao, proximoTermo);
             termo.adicionarOperacao(operacaoEExpressao);
         }
@@ -182,38 +181,38 @@ public class ParserConsultaVendas {
         return termo;
     }
 
-    private ExpressaoVendas parseTermo() {
+    private ExpressaoServicos parseTermo() {
         if (tokenAtual().tipo.equals(Token.Tipo.ABRE_PAREN)) {
             avancar(); 
-            ExpressaoVendas expressaoInterna = parseExpressao();
+            ExpressaoServicos expressaoInterna = parseExpressao();
 
             if (!tokenAtual().tipo.equals(Token.Tipo.FECHA_PAREN)) {
                 throw new IllegalArgumentException("Esperado ')', encontrado: " + tokenAtual().valor);
             }
             avancar(); 
 
-            return new ExpressaoVendas(expressaoInterna); 
+            return new ExpressaoServicos(expressaoInterna); 
         }
 
         return parseConsultaBase();
     }
 
-    private ExpressaoVendas parseConsultaBase() {
-        if (!tokenAtual().tipo.equals(Token.Tipo.VENDAS)) {
-            throw new IllegalArgumentException("Esperado 'vendas', encontrado: " + tokenAtual().valor);
+    private ExpressaoServicos parseConsultaBase() {
+        if (!tokenAtual().tipo.equals(Token.Tipo.SERVICOS)) {
+            throw new IllegalArgumentException("Esperado 'serviços', encontrado: " + tokenAtual().valor);
         }
         avancar(); 
 
         if (tokenAtual().tipo.equals(Token.Tipo.DE)) {
-            return parseVendasDe(); 
+            return parseServicosDe(); 
         } else if (tokenAtual().tipo.equals(Token.Tipo.DO)) {
-            return parseVendasDo(); 
+            return parseServicosDo(); 
         } else {
-            throw new IllegalArgumentException("Esperado 'de' ou 'do' após 'vendas', encontrado: " + tokenAtual().valor);
+            throw new IllegalArgumentException("Esperado 'de' ou 'do' após 'serviços', encontrado: " + tokenAtual().valor);
         }
     }
 
-    private ExpressaoVendas parseVendasDe() {
+    private ExpressaoServicos parseServicosDe() {
         avancar(); 
 
         if (!tokenAtual().tipo.equals(Token.Tipo.MES)) {
@@ -223,18 +222,18 @@ public class ParserConsultaVendas {
         Mes mes = new Mes(tokenAtual().valor);
         avancar(); 
 
-        ConsultaVendasMes consulta = new ConsultaVendasMes(mes);
-        return new ExpressaoVendas(consulta);
+        ConsultaServicosMes consulta = new ConsultaServicosMes(mes);
+        return new ExpressaoServicos(consulta);
     }
 
-    private ExpressaoVendas parseVendasDo() {
+    private ExpressaoServicos parseServicosDo() {
         avancar(); 
 
         if (!tokenAtual().tipo.equals(Token.Tipo.NOME)) {
-            throw new IllegalArgumentException("Esperado nome do vendedor, encontrado: " + tokenAtual().valor);
+            throw new IllegalArgumentException("Esperado nome do prestador, encontrado: " + tokenAtual().valor);
         }
 
-        NomeVendedor vendedor = new NomeVendedor(tokenAtual().valor);
+        NomePrestador prestador = new NomePrestador(tokenAtual().valor);
         avancar(); 
 
         if (posicaoAtual < tokens.size() && 
@@ -249,12 +248,11 @@ public class ParserConsultaVendas {
             Mes mes = new Mes(tokenAtual().valor);
             avancar(); 
 
-            ConsultaVendasVendedorMes consulta = new ConsultaVendasVendedorMes(vendedor, mes);
-            return new ExpressaoVendas(consulta);
+            ConsultaServicosPrestadorMes consulta = new ConsultaServicosPrestadorMes(prestador, mes);
+            return new ExpressaoServicos(consulta);
         } else {
-
-            ConsultaVendasVendedor consulta = new ConsultaVendasVendedor(vendedor);
-            return new ExpressaoVendas(consulta);
+            ConsultaServicosPrestador consulta = new ConsultaServicosPrestador(prestador);
+            return new ExpressaoServicos(consulta);
         }
     }
 
@@ -270,5 +268,4 @@ public class ParserConsultaVendas {
             posicaoAtual++;
         }
     }
-
 }

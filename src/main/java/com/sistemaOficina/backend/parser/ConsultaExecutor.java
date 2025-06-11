@@ -6,26 +6,25 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.sistemaOficina.backend.parser.estrutura.ConsultaVendasMes;
-import com.sistemaOficina.backend.parser.estrutura.ConsultaVendasVendedor;
-import com.sistemaOficina.backend.parser.estrutura.ConsultaVendasVendedorMes;
+import com.sistemaOficina.backend.parser.estrutura.ConsultaServicosMes;
+import com.sistemaOficina.backend.parser.estrutura.ConsultaServicosPrestador;
+import com.sistemaOficina.backend.parser.estrutura.ConsultaServicosPrestadorMes;
 import com.sistemaOficina.backend.parser.estrutura.Expressao;
-import com.sistemaOficina.backend.parser.estrutura.ExpressaoVendas;
+import com.sistemaOficina.backend.parser.estrutura.ExpressaoServicos;
 import com.sistemaOficina.backend.parser.estrutura.OperacaoEExpressao;
-
 
 // padrao template method
 @Component
 public class ConsultaExecutor {
     public static interface TemplateExecucaoConsulta<T> {
-        List<T> execute(ConsultaVendasMes exp);
-        List<T> execute(ConsultaVendasVendedor exp);
-        List<T> execute(ConsultaVendasVendedorMes exp);
+        List<T> execute(ConsultaServicosMes exp);
+        List<T> execute(ConsultaServicosPrestador exp);
+        List<T> execute(ConsultaServicosPrestadorMes exp);
         List<T> add(List<T> exp0, List<T> exp1);
         List<T> remove(List<T> exp0, List<T> exp1);
     }
 
-    public <T> List<T> execute(ExpressaoVendas expressao, TemplateExecucaoConsulta<T> template) {
+    public <T> List<T> execute(ExpressaoServicos expressao, TemplateExecucaoConsulta<T> template) {
         if (expressao == null) {
             throw new IllegalArgumentException("Expressão não pode ser nula");
         }
@@ -69,17 +68,16 @@ public class ConsultaExecutor {
         return resultado;
     }
 
-    private <T> List<T> search(ExpressaoVendas consulta, TemplateExecucaoConsulta template) {
-        if (consulta.isVendasPorMes()) {
-            return template.execute(consulta.getVendasMes());
+    private <T> List<T> search(ExpressaoServicos consulta, TemplateExecucaoConsulta template) {
+        if (consulta.isServicosPorMes()) {
+            return template.execute(consulta.getServicosMes());
         }
-        if (consulta.isVendasPorVendedor()) {
-            return template.execute(consulta.getVendasVendedor());
+        if (consulta.isServicosPorPrestador()) {
+            return template.execute(consulta.getServicosPrestador());
         }
-        if (consulta.isVendasPorVendedorEMes()) {
-            return template.execute(consulta.getVendasVendedorMes());
+        if (consulta.isServicosPorPrestadorEMes()) {
+            return template.execute(consulta.getServicosPrestadorMes());
         }
         return null;
     }
-    
 }
