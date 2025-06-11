@@ -27,6 +27,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.context.ApplicationEventPublisher;
+import com.sistemaOficina.backend.event.OrdemServicoCreatedEvent;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -46,6 +48,7 @@ public class OrdemServicoController {
     private final FuncionarioService funcionarioService;
     private final VeiculoService veiculoService;
     private final PdfService pdfService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public OrdemServicoController(OrdemServicoService ordemServicoService,
                                   ItensPecaService itensPecaService,
@@ -55,7 +58,8 @@ public class OrdemServicoController {
                                   ServicoService servicoService,
                                   FuncionarioService funcionarioService,
                                   VeiculoService veiculoService,
-                                  PdfService pdfService) {
+                                  PdfService pdfService,
+                                  ApplicationEventPublisher eventPublisher) {
         this.ordemServicoService = ordemServicoService;
         this.itensPecaService = itensPecaService;
         this.clienteService = clienteService;
@@ -65,6 +69,7 @@ public class OrdemServicoController {
         this.funcionarioService = funcionarioService;
         this.veiculoService = veiculoService;
         this.pdfService = pdfService;
+        this.eventPublisher = eventPublisher;
     }
 
     @GetMapping("/{numero}/pdf")
@@ -122,6 +127,9 @@ public class OrdemServicoController {
             // 5) atualizar preço final
             os.setPrecoFinal(precoTotal);
             ordemServicoService.atualizar(os);
+
+            // publish event to notify assigned employees
+            eventPublisher.publishEvent(new OrdemServicoCreatedEvent(this, os, request.getItensServico()));
 
             return ResponseEntity.status(HttpStatus.CREATED).build();
 
