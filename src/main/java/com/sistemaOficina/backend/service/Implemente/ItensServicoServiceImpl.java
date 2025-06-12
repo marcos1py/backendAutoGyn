@@ -46,4 +46,22 @@ public class ItensServicoServiceImpl implements ItensServicoService {
         // For now, return all items - this would need a custom query in a real implementation
         return itensServicoRepository.findAll();
     }
+
+    @Override
+    public List<ItensServico> buscarPorNomeFuncionario(String nomeLike) {
+        if (nomeLike == null || nomeLike.trim().isEmpty()) {
+            return List.of();
+        }
+        return itensServicoRepository.findByFuncionarioNome(nomeLike.trim());
+    }
+
+    @Override
+    public List<ItensServico> buscarPorMes(int mes) {
+        return this.itensServicoRepository.findByMesAnoAtual(mes);
+    }
+
+    @Override
+    public List<ItensServico> buscarPorMesNomeFuncionario(int mes, String nomeLike) {
+        return this.itensServicoRepository.findByMesAnoAtualAndFuncionarioNome(mes, nomeLike);
+    }
 }
