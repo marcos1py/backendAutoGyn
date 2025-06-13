@@ -31,7 +31,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.sistemaOficina.backend.event.OrdemServicoCreatedEvent;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -219,8 +219,8 @@ public class OrdemServicoController {
             // Atualizar Itens de Serviços
             List<ItensServico> existingServicos = itensServicoService.buscarPorNumeroOs(numero);
             for (ItensServicoDTO itensServicoRequest : request.getItensServico()) {
-                LocalTime inicio = LocalTime.parse(itensServicoRequest.getHorarioInicio());
-                LocalTime fim = LocalTime.parse(itensServicoRequest.getHorarioFim());
+                LocalDateTime inicio = LocalDateTime.parse(itensServicoRequest.getHorarioInicio());
+                LocalDateTime fim = LocalDateTime.parse(itensServicoRequest.getHorarioFim());
                 Integer servicoId = itensServicoRequest.getServicoId().intValue();
                 Integer funcId = itensServicoRequest.getFuncionarioId().intValue();
                 Servico servico = servicoService.buscarPorId(servicoId);
@@ -315,8 +315,8 @@ public class OrdemServicoController {
     private double processarItensServico(List<ItensServicoDTO> itens, OrdemServico os) {
         double soma = 0;
         for (ItensServicoDTO dto : itens) {
-            LocalTime inicio = LocalTime.parse(dto.getHorarioInicio());
-            LocalTime fim    = LocalTime.parse(dto.getHorarioFim());
+            LocalDateTime inicio = LocalDateTime.parse(dto.getHorarioInicio());
+            LocalDateTime fim    = LocalDateTime.parse(dto.getHorarioFim());
             Funcionario f    = funcionarioService.buscarPorId(dto.getFuncionarioId().intValue());
             Servico s        = servicoService.buscarPorId(dto.getServicoId().intValue());
             int qtd          = dto.getQuantidade();
