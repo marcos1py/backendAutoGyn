@@ -14,9 +14,9 @@ public interface ItensServicoRepository extends JpaRepository<ItensServico, Inte
     @Query("SELECT i FROM ItensServico i WHERE UPPER(i.funcionario.nome) = UPPER(:nomeLike)")
     List<ItensServico> findByFuncionarioNome(@Param("nomeLike") String nomeLike);
     
-    @Query("SELECT i FROM ItensServico i JOIN i.numeroOs os WHERE MONTH(os.dataAbertura) = :mes AND YEAR(os.dataAbertura) = YEAR(CURRENT_DATE)")
+    @Query("SELECT i FROM ItensServico i WHERE MONTH(i.horarioInicio) = :mes AND YEAR(i.horarioInicio) = YEAR(CURRENT_DATE)")
     List<ItensServico> findByMesAnoAtual(@Param("mes") int mes);
     
-    @Query("SELECT i FROM ItensServico i JOIN i.numeroOs os WHERE MONTH(os.dataAbertura) = :mes AND YEAR(os.dataAbertura) = YEAR(CURRENT_DATE) AND UPPER(i.funcionario.nome) = UPPER(:nomeFuncionario)")
+    @Query("SELECT i FROM ItensServico i WHERE MONTH(i.horarioInicio) = :mes AND YEAR(i.horarioInicio) = YEAR(CURRENT_DATE) AND UPPER(i.funcionario.nome) = UPPER(:nomeFuncionario)")
     List<ItensServico> findByMesAnoAtualAndFuncionarioNome(@Param("mes") int mes, @Param("nomeFuncionario") String nomeFuncionario);
 }

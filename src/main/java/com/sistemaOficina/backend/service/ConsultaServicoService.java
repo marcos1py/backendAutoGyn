@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.sistemaOficina.backend.dto.ItensServicoResponse;
 import com.sistemaOficina.backend.entidade.ItensServico;
 import com.sistemaOficina.backend.parser.ConsultaExecutor;
 import com.sistemaOficina.backend.parser.ConsultaExecutor.TemplateExecucaoConsulta;
@@ -30,9 +32,13 @@ public class ConsultaServicoService implements TemplateExecucaoConsulta {
     @Autowired
     private ConsultaServicosFactory consultaServicosFactory;
 
-    public List<ItensServico> execute(String expressaoStr) {
+    public List<ItensServicoResponse> execute(String expressaoStr) {
         ExpressaoServicos expressao = this.consultaServicosFactory.instantiate(expressaoStr);
-        return this.consultaExecutor.execute(expressao, this);
+        
+        List<ItensServico> lista = this.consultaExecutor.execute(expressao, this);
+        return lista.stream()
+            .map(ItensServicoResponse::new)
+            .collect(Collectors.toList());
     }
 
     @Override
