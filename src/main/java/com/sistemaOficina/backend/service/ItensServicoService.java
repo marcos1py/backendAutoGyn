@@ -10,4 +10,7 @@ public interface ItensServicoService {
     ItensServico buscarPorId(Integer id);
     List<ItensServico> buscarTodos();
     List<ItensServico> buscarPorNumeroOs(Integer numeroOs);
+    List<ItensServico> buscarPorNomeFuncionario(String nomeLike);
+    List<ItensServico> buscarPorMes(int mes);
+    List<ItensServico> buscarPorMesNomeFuncionario(int mes, String nomeLike);
 }

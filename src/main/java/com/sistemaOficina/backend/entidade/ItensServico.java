@@ -2,7 +2,7 @@ package com.sistemaOficina.backend.entidade;
 
 import jakarta.persistence.*;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "itens_servico")
@@ -13,9 +13,9 @@ public class ItensServico {
     private Integer id;
 
     @Column(name = "horario_inicio")
-    private LocalTime horarioInicio;
+    private LocalDateTime horarioInicio;
     @Column(name = "horario_fim")
-    private LocalTime horarioFim;
+    private LocalDateTime horarioFim;
     private int quantidade;
     @Column(name = "preco_total")
     private double precoTotal;
@@ -35,7 +35,7 @@ public class ItensServico {
     public ItensServico() {
     }
 
-    public ItensServico(Integer id, LocalTime horarioInicio, LocalTime horarioFim, int quantidade, 
+    public ItensServico(Integer id, LocalDateTime horarioInicio, LocalDateTime horarioFim, int quantidade, 
                         double precoTotal, Funcionario funcionario, Servico idServico, 
                         OrdemServico numeroOs) {
         this.id = id;
@@ -56,19 +56,19 @@ public class ItensServico {
         this.id = id;
     }
 
-    public LocalTime getHorarioInicio() {
+    public LocalDateTime getHorarioInicio() {
         return horarioInicio;
     }
 
-    public void setHorarioInicio(LocalTime horarioInicio) {
+    public void setHorarioInicio(LocalDateTime horarioInicio) {
         this.horarioInicio = horarioInicio;
     }
 
-    public LocalTime getHorarioFim() {
+    public LocalDateTime getHorarioFim() {
         return horarioFim;
     }
 
-    public void setHorarioFim(LocalTime horarioFim) {
+    public void setHorarioFim(LocalDateTime horarioFim) {
         this.horarioFim = horarioFim;
     }
 
