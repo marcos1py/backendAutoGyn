@@ -1,271 +1,303 @@
 package com.sistemaOficina.backend.parser;
 
 import java.util.*;
-
-import com.sistemaOficina.backend.parser.estrutura.ConsultaServicosMes;
-import com.sistemaOficina.backend.parser.estrutura.ConsultaServicosPrestador;
-import com.sistemaOficina.backend.parser.estrutura.ConsultaServicosPrestadorMes;
-import com.sistemaOficina.backend.parser.estrutura.ExpressaoServicos;
-import com.sistemaOficina.backend.parser.estrutura.Mes;
-import com.sistemaOficina.backend.parser.estrutura.NomePrestador;
-import com.sistemaOficina.backend.parser.estrutura.OperacaoEExpressao;
-import com.sistemaOficina.backend.parser.estrutura.TipoOperacao;
+import com.sistemaOficina.backend.parser.estrutura.*;
 
 public class ParserConsultaServicos {
-    private String entrada;
-    private int posicaoAtual;
-    private List<Token> tokens;
-
+    
+    // Tipos de tokens que nosso parser reconhece
+    private enum TipoToken {
+        SERVICOS, DE, DO, EM, OPERADOR, MES, NOME, ABRE_PAREN, FECHA_PAREN, FIM
+    }
+    
+    // Classe interna para representar cada token encontrado
     private static class Token {
-        enum Tipo { 
-            SERVICOS, DE, DO, EM, OPERADOR, MES, NOME, ABRE_PAREN, FECHA_PAREN, FIM, ASPAS 
-        }
-
-        Tipo tipo;
-        String valor;
-
-        Token(Tipo tipo, String valor) {
+        final TipoToken tipo;
+        // Só usado para nomes, meses e operadores
+        String valor;  
+        
+        Token(TipoToken tipo, String valor) {
             this.tipo = tipo;
             this.valor = valor;
         }
+        
+        // metodos de verificação para deixar o código mais legível
+        boolean isFim() { return tipo == TipoToken.FIM; }
+        boolean isServicos() { return tipo == TipoToken.SERVICOS; }
+        boolean isDe() { return tipo == TipoToken.DE; }
+        boolean isDo() { return tipo == TipoToken.DO; }
+        boolean isEm() { return tipo == TipoToken.EM; }
+        boolean isOperador() { return tipo == TipoToken.OPERADOR; }
+        boolean isMes() { return tipo == TipoToken.MES; }
+        boolean isNome() { return tipo == TipoToken.NOME; }
+        boolean isAbreParenteses() { return tipo == TipoToken.ABRE_PAREN; }
+        boolean isFechaParenteses() { return tipo == TipoToken.FECHA_PAREN; }
 
         @Override
         public String toString() {
-            return tipo + "(" + valor + ")";
+            return "Token [tipo=" + tipo + ", valor=" + valor + "]";
         }
+
     }
 
-    private static final Set<String> MESES_VALIDOS = Set.of(
-        "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
-        "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"
-    );
-
-    public ParserConsultaServicos() {
-        this.tokens = new ArrayList<>();
-        this.posicaoAtual = 0;
-    }
+    private final List<Token> tokens = new ArrayList<>();
+    private int posicaoAtual = 0;
 
     public ExpressaoServicos parse(String consulta) {
         if (consulta == null || consulta.trim().isEmpty()) {
-            throw new IllegalArgumentException("Consulta não pode ser vazia");
+            throw new IllegalArgumentException("Consulta não pode ser vazia!");
         }
-
-        this.entrada = consulta.trim();
-        this.posicaoAtual = 0;
-        this.tokens.clear();
-
-        tokenizar();
-
-        this.posicaoAtual = 0;
+        
+        tokenizar(consulta);
         return parseConsultaCompleta();
     }
-
-    private void tokenizar() {
+   
+    private void tokenizar(String consulta) {
         int i = 0;
-        while (i < entrada.length()) {
-            char c = entrada.charAt(i);
-
+        final int tamanho = consulta.length();
+        
+        while (i < tamanho) {
+            char c = consulta.charAt(i);
+            
             if (Character.isWhitespace(c)) {
                 i++;
                 continue;
             }
-
-            if (c == '+' || c == '-') {
-                tokens.add(new Token(Token.Tipo.OPERADOR, String.valueOf(c)));
-                i++;
-                continue;
-            }
-
+            
             if (c == '(') {
-                tokens.add(new Token(Token.Tipo.ABRE_PAREN, "("));
+                tokens.add(new Token(TipoToken.ABRE_PAREN, null));
                 i++;
                 continue;
             }
-
             if (c == ')') {
-                tokens.add(new Token(Token.Tipo.FECHA_PAREN, ")"));
+                tokens.add(new Token(TipoToken.FECHA_PAREN, null));
                 i++;
                 continue;
             }
-
+            if (c == '+' || c == '-') {
+                tokens.add(new Token(TipoToken.OPERADOR, String.valueOf(c)));
+                i++;
+                continue;
+            }
             if (c == '&') {
-                tokens.add(new Token(Token.Tipo.FIM, "&"));
+                tokens.add(new Token(TipoToken.FIM, "&"));
                 i++;
                 continue;
             }
-
             if (c == '"') {
-                StringBuilder nome = new StringBuilder();
-                i++; 
-                while (i < entrada.length() && entrada.charAt(i) != '"') {
-                    nome.append(entrada.charAt(i));
-                    i++;
-                }
-                if (i < entrada.length()) {
-                    i++; 
-                }
-                tokens.add(new Token(Token.Tipo.NOME, nome.toString()));
+                i = processarTextoEntreAspas(i, consulta);
                 continue;
             }
-
+            
             if (Character.isLetter(c)) {
-                StringBuilder palavra = new StringBuilder();
-                while (i < entrada.length() && Character.isLetter(entrada.charAt(i))) {
-                    palavra.append(entrada.charAt(i));
-                    i++;
-                }
-
-                String palavraStr = palavra.toString();
-                classificarPalavra(palavraStr);
+                i = processarPalavra(i, consulta);
                 continue;
             }
-
-            throw new IllegalArgumentException("Caractere não reconhecido: " + c);
+            
+            throw new IllegalArgumentException(
+                "Caractere inválido na posição " + i + ": '" + c + "'"
+            );
         }
-
-        if (tokens.isEmpty() || tokens.get(tokens.size() - 1).tipo != Token.Tipo.FIM) {
-            tokens.add(new Token(Token.Tipo.FIM, "&"));
+        
+        // Garante que sempre termine com FIM
+        if (tokens.isEmpty() || !tokens.get(tokens.size()-1).isFim()) {
+            tokens.add(new Token(TipoToken.FIM, "&"));
         }
     }
-
-    private void classificarPalavra(String palavra) {
-        switch (palavra.toLowerCase()) {
+    
+    private int processarTextoEntreAspas(int inicio, String consulta) {
+        StringBuilder sb = new StringBuilder();
+        int i = inicio + 1;
+        
+        while (i < consulta.length()) {
+            char c = consulta.charAt(i);
+            if (c == '"') {
+                tokens.add(new Token(TipoToken.NOME, sb.toString()));
+                return i + 1;
+            }
+            sb.append(c);
+            i++;
+        }
+        
+        // Se chegou aqui, aspa não foi fechada
+        throw new IllegalArgumentException("Texto entre aspas não foi fechado!");
+    }
+    
+    private int processarPalavra(int inicio, String consulta) {
+        StringBuilder sb = new StringBuilder();
+        int i = inicio;
+        
+        while (i < consulta.length()) {
+            char c = consulta.charAt(i);
+            if (!Character.isLetter(c)) break;
+            sb.append(c);
+            i++;
+        }
+        
+        String palavra = sb.toString();
+        tokens.add(classificarPalavra(palavra));
+        return i;
+    }
+    
+    private Token classificarPalavra(String palavra) {
+        String lower = palavra.toLowerCase();
+        
+        switch (lower) {
             case "servicos":
             case "serviços":
-                tokens.add(new Token(Token.Tipo.SERVICOS, palavra));
-                break;
+                return new Token(TipoToken.SERVICOS, null);
             case "de":
-                tokens.add(new Token(Token.Tipo.DE, palavra));
-                break;
+                return new Token(TipoToken.DE, null);
             case "do":
-                tokens.add(new Token(Token.Tipo.DO, palavra));
-                break;
+            case "da":
+                return new Token(TipoToken.DO, null);
             case "em":
-                tokens.add(new Token(Token.Tipo.EM, palavra));
-                break;
+                return new Token(TipoToken.EM, null);
             default:
-                if (MESES_VALIDOS.contains(palavra.toUpperCase())) {
-                    tokens.add(new Token(Token.Tipo.MES, palavra));
-                } else {
-                    tokens.add(new Token(Token.Tipo.NOME, palavra));
+                if (Mes.isValid(palavra.toUpperCase())) {
+                    return new Token(TipoToken.MES, palavra.toUpperCase());
                 }
-                break;
+                return new Token(TipoToken.NOME, palavra);
         }
     }
 
     private ExpressaoServicos parseConsultaCompleta() {
         ExpressaoServicos expressao = parseExpressao();
-
-        if (!tokenAtual().tipo.equals(Token.Tipo.FIM)) {
-            throw new IllegalArgumentException("Esperado fim da consulta (&), encontrado: " + tokenAtual().valor);
+        
+        if (!tokenAtual().isFim()) {
+            throw new IllegalArgumentException(
+                "Expressao deveria acabar com fim &, mas acabou com: " + 
+                tokenAtual().valor
+            );
         }
-
+        
         return expressao;
     }
-
+    
     private ExpressaoServicos parseExpressao() {
         ExpressaoServicos termo = parseTermo();
-
-        while (posicaoAtual < tokens.size() && 
-               tokenAtual().tipo.equals(Token.Tipo.OPERADOR)) {
-
-            TipoOperacao operacao = tokenAtual().valor.equals("+") ? 
-                TipoOperacao.SOMA : TipoOperacao.SUBTRACAO;
-            avancar(); 
-
+        
+        while (temOperador()) {
+            TipoOperacao operacao = tokenAtual().valor.equals("+") 
+                ? TipoOperacao.SOMA 
+                : TipoOperacao.SUBTRACAO;
+            
+            consumirToken();
+            
             ExpressaoServicos proximoTermo = parseTermo();
-            OperacaoEExpressao operacaoEExpressao = new OperacaoEExpressao(operacao, proximoTermo);
-            termo.adicionarOperacao(operacaoEExpressao);
+            
+            OperacaoEExpressao operacaoCombinada = new OperacaoEExpressao(operacao, proximoTermo);
+            termo.adicionarOperacao(operacaoCombinada);
         }
-
+        
         return termo;
     }
-
+    
     private ExpressaoServicos parseTermo() {
-        if (tokenAtual().tipo.equals(Token.Tipo.ABRE_PAREN)) {
-            avancar(); 
-            ExpressaoServicos expressaoInterna = parseExpressao();
-
-            if (!tokenAtual().tipo.equals(Token.Tipo.FECHA_PAREN)) {
-                throw new IllegalArgumentException("Esperado ')', encontrado: " + tokenAtual().valor);
+        if (tokenAtual().isAbreParenteses()) {
+            consumirToken();
+            ExpressaoServicos interno = parseExpressao();
+            
+            if (!tokenAtual().isFechaParenteses()) {
+                throw new IllegalArgumentException(
+                    "nao achou ) achou: " + 
+                    tokenAtual().valor
+                );
             }
-            avancar(); 
-
-            return new ExpressaoServicos(expressaoInterna); 
+            
+            consumirToken();
+            return new ExpressaoServicos(interno);
         }
-
-        return parseConsultaBase();
+        
+        return parseConsultaBasica();
     }
-
-    private ExpressaoServicos parseConsultaBase() {
-        if (!tokenAtual().tipo.equals(Token.Tipo.SERVICOS)) {
-            throw new IllegalArgumentException("Esperado 'serviços', encontrado: " + tokenAtual().valor);
+    
+    private ExpressaoServicos parseConsultaBasica() {
+        if (!tokenAtual().isServicos()) {
+            throw new IllegalArgumentException(
+                "deve começar com serviços 'serviços'! começou com: " + 
+                tokenAtual().valor
+            );
         }
-        avancar(); 
-
-        if (tokenAtual().tipo.equals(Token.Tipo.DE)) {
-            return parseServicosDe(); 
-        } else if (tokenAtual().tipo.equals(Token.Tipo.DO)) {
-            return parseServicosDo(); 
+        
+        consumirToken();
+        
+        if (tokenAtual().isDe()) {
+            return parseServicosDeMes();
+        } else if (tokenAtual().isDo()) {
+            return parseServicosDoPrestador();
         } else {
-            throw new IllegalArgumentException("Esperado 'de' ou 'do' após 'serviços', encontrado: " + tokenAtual().valor);
+            throw new IllegalArgumentException(
+                "Esperado 'de' ou 'do' após 'serviços', mas encontrou: " + 
+                tokenAtual().valor
+            );
         }
     }
-
-    private ExpressaoServicos parseServicosDe() {
-        avancar(); 
-
-        if (!tokenAtual().tipo.equals(Token.Tipo.MES)) {
-            throw new IllegalArgumentException("Esperado nome de mês, encontrado: " + tokenAtual().valor);
+    
+    private ExpressaoServicos parseServicosDeMes() {
+        consumirToken();
+        if (!tokenAtual().isMes()) {
+            throw new IllegalArgumentException(
+                "Esperado nome do mês após 'de', mas encontrou: " + 
+                tokenAtual().valor
+            );
         }
-
+        
         Mes mes = new Mes(tokenAtual().valor);
-        avancar(); 
-
-        ConsultaServicosMes consulta = new ConsultaServicosMes(mes);
-        return new ExpressaoServicos(consulta);
+        consumirToken();
+        
+        return new ExpressaoServicos(new ConsultaServicosMes(mes));
     }
-
-    private ExpressaoServicos parseServicosDo() {
-        avancar(); 
-
-        if (!tokenAtual().tipo.equals(Token.Tipo.NOME)) {
-            throw new IllegalArgumentException("Esperado nome do prestador, encontrado: " + tokenAtual().valor);
+    
+    private ExpressaoServicos parseServicosDoPrestador() {
+        consumirToken();
+        
+        if (!tokenAtual().isNome()) {
+            throw new IllegalArgumentException(
+                "Esperado nome do prestador após 'do', mas encontrou: " + 
+                tokenAtual().valor
+            );
         }
-
+        
         NomePrestador prestador = new NomePrestador(tokenAtual().valor);
-        avancar(); 
-
-        if (posicaoAtual < tokens.size() && 
-            tokenAtual().tipo.equals(Token.Tipo.EM)) {
-
-            avancar(); 
-
-            if (!tokenAtual().tipo.equals(Token.Tipo.MES)) {
-                throw new IllegalArgumentException("Esperado nome de mês após 'em', encontrado: " + tokenAtual().valor);
+        consumirToken();
+        
+        if (temProximoToken() && tokenAtual().isEm()) {
+            consumirToken();
+            
+            if (!tokenAtual().isMes()) {
+                throw new IllegalArgumentException(
+                    "Esperado nome do mês após 'em', mas encontrou: " + 
+                    tokenAtual().valor
+                );
             }
-
+            
             Mes mes = new Mes(tokenAtual().valor);
-            avancar(); 
-
-            ConsultaServicosPrestadorMes consulta = new ConsultaServicosPrestadorMes(prestador, mes);
-            return new ExpressaoServicos(consulta);
-        } else {
-            ConsultaServicosPrestador consulta = new ConsultaServicosPrestador(prestador);
-            return new ExpressaoServicos(consulta);
+            consumirToken();
+            return new ExpressaoServicos(new ConsultaServicosPrestadorMes(prestador, mes));
         }
+        
+        return new ExpressaoServicos(new ConsultaServicosPrestador(prestador));
     }
-
+    
+    // -- Utilitários --
+    
     private Token tokenAtual() {
         if (posicaoAtual >= tokens.size()) {
-            throw new IllegalArgumentException("Fim inesperado da consulta");
+            throw new IllegalArgumentException("erro posicao atual maior que numero de tokens");
         }
         return tokens.get(posicaoAtual);
     }
-
-    private void avancar() {
-        if (posicaoAtual < tokens.size()) {
-            posicaoAtual++;
-        }
+    
+    private void consumirToken() {
+        posicaoAtual++;
+    }
+    
+    private boolean temProximoToken() {
+        return posicaoAtual < tokens.size();
+    }
+    
+    private boolean temOperador() {
+        return temProximoToken() && tokenAtual().isOperador();
     }
 }
