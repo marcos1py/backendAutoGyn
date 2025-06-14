@@ -24,6 +24,6 @@ public class ConsultaServicoController {
     public ResponseEntity<?> salvar(@RequestBody ConsultaServico consulta) {
         System.out.println(consulta);
         System.out.println(consulta.getExpressao());
-        return ResponseEntity.ok(consultaServicoService.execute(consulta.getExpressao()).size());
+        return ResponseEntity.ok(consultaServicoService.execute(consulta.getExpressao()));
     }
 }
