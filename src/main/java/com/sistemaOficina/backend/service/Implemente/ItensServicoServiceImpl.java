@@ -43,8 +43,7 @@ public class ItensServicoServiceImpl implements ItensServicoService {
 
     @Override
     public List<ItensServico> buscarPorNumeroOs(Integer numeroOs) {
-        // For now, return all items - this would need a custom query in a real implementation
-        return itensServicoRepository.findAll();
+        return itensServicoRepository.findByNumeroOsNumero(numeroOs);
     }
 
     @Override

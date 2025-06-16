@@ -43,7 +43,6 @@ public class ItensPecaServiceImpl implements ItensPecaService {
 
     @Override
     public List<ItensPeca> buscarPorNumeroOs(Integer numeroOs) {
-        // For now, return all items - this would need a custom query in a real implementation
-        return itensPecaRepository.findAll();
+        return itensPecaRepository.findByNumeroOsNumero(numeroOs);
     }
 }

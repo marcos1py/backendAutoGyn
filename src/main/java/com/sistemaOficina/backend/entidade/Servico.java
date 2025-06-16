@@ -18,6 +18,7 @@ public class Servico {
     @Column(name = "preco_unitario")
     private double precoUnitario;
 
+
     public Servico() {
     }
 

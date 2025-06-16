@@ -1,34 +1,20 @@
 package com.sistemaOficina.backend.controller;
 
 import com.sistemaOficina.backend.dto.ErrorResponse;
-import com.sistemaOficina.backend.dto.OrdemServicoRequest;
 import com.sistemaOficina.backend.dto.ItensPecaDTO;
 import com.sistemaOficina.backend.dto.ItensServicoDTO;
-import com.sistemaOficina.backend.entidade.ItensPeca;
-import com.sistemaOficina.backend.entidade.ItensServico;
-import com.sistemaOficina.backend.entidade.OrdemServico;
-import com.sistemaOficina.backend.entidade.Pecas;
-import com.sistemaOficina.backend.entidade.Servico;
-import com.sistemaOficina.backend.entidade.Funcionario;
-import com.sistemaOficina.backend.entidade.Cliente;
-import com.sistemaOficina.backend.entidade.Veiculo;
-import com.sistemaOficina.backend.service.ItensPecaService;
-import com.sistemaOficina.backend.service.ItensServicoService;
-import com.sistemaOficina.backend.service.OrdemServicoService;
-import com.sistemaOficina.backend.service.PecasService;
-import com.sistemaOficina.backend.service.ServicoService;
-import com.sistemaOficina.backend.service.FuncionarioService;
-import com.sistemaOficina.backend.service.ClienteService;
-import com.sistemaOficina.backend.service.VeiculoService;
-import com.sistemaOficina.backend.service.PdfService;
+import com.sistemaOficina.backend.dto.OrdemServicoRequest;
+import com.sistemaOficina.backend.entidade.*;
+import com.sistemaOficina.backend.event.OrdemServicoCreatedEvent;
+import com.sistemaOficina.backend.service.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.context.ApplicationEventPublisher;
-import com.sistemaOficina.backend.event.OrdemServicoCreatedEvent;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -79,7 +65,14 @@ public class OrdemServicoController {
         Veiculo veiculo = veiculoService.buscarPorPlaca(os.getPlacaVeiculo().getPlaca());
         List<ItensPeca> pecas = itensPecaService.buscarPorNumeroOs(numero);
         List<ItensServico> servicos = itensServicoService.buscarPorNumeroOs(numero);
+        //System.print com for das pecas e serviços
+        for (ItensPeca peca : pecas) {
+            System.out.println("Peça: " + peca.getPeca().getNome() + ", Quantidade: " + peca.getQuantidade());
+        }
 
+        for (ItensServico servico : servicos) {
+            System.out.println("Serviço: " + servico.getIdServico().getNome() + ", Quantidade: " + servico.getQuantidade());
+        }
         try {
             byte[] pdf = pdfService.gerarPdfOrdemServico(os, cliente, veiculo, pecas, servicos);
             return ResponseEntity.ok()
@@ -92,13 +85,10 @@ public class OrdemServicoController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<?> salvar(@RequestBody OrdemServicoRequest request) {
         try {
-            // 1) gerar número
-            Integer ultimoNumero = ordemServicoService.buscarUltimoNumeroOs();
-            Integer numero = (ultimoNumero != null) ? ultimoNumero + 1 : 1;
-
-            // 2) validar veículo e cliente
+            // 1) Validar veículo e cliente
             Veiculo veiculo = veiculoService.buscarPorPlaca(request.getPlacaVeiculo());
             if (veiculo == null) {
                 return ResponseEntity.status(404).body(new ErrorResponse("Veículo não encontrado"));
@@ -108,32 +98,72 @@ public class OrdemServicoController {
                 return ResponseEntity.status(404).body(new ErrorResponse("Cliente não encontrado"));
             }
 
-            // 3) criar e salvar Ordem de Serviço
-            OrdemServico os = new OrdemServico(
-                    numero,
-                    LocalDate.now(),
-                    0.0,
-                    request.getStatus(),
-                    veiculo,
-                    cliente
-            );
+            // 2) Criar e salvar Ordem de Serviço para gerar o número
+            OrdemServico os = new OrdemServico();
+            os.setData(LocalDate.now());
+            os.setPrecoFinal(0.0);
+            os.setStatus(request.getStatus());
+            os.setPlacaVeiculo(veiculo);
+            os.setCliente(cliente);
             ordemServicoService.salvar(os);
+            Integer numero = os.getNumero();
 
-            // 4) processar itens e somar preços
-            double precoTotal = 0;
-            precoTotal += processarItensPeca(request.getItensPeca(), os);
-            precoTotal += processarItensServico(request.getItensServico(), os);
+            // números e datas já definidos acima
 
-            // 5) atualizar preço final
+            // 3) Calcular preço total com segurança
+            double precoTotal = 0.0;
+
+            // Itens de peça
+            for (ItensPecaDTO item : request.getItensPeca()) {
+                Pecas peca = pecasService.buscarPorId(item.getPecaId().intValue());
+                if (peca == null) {
+                    return ResponseEntity.status(404).body(new ErrorResponse("Peça não encontrada"));
+                }
+
+                if (peca.getQuantidade() < item.getQuantidade()) {
+                    return ResponseEntity.status(400).body(new ErrorResponse("Estoque insuficiente para a peça"));
+                }
+
+                peca.setQuantidade(peca.getQuantidade() - item.getQuantidade());
+                pecasService.atualizar(peca);
+
+                double preco = item.getQuantidade() * peca.getPrecoUnitario();
+                precoTotal += preco;
+
+                ItensPeca ip = new ItensPeca(0, preco, item.getQuantidade(), os, peca);
+                itensPecaService.salvar(ip);
+            }
+
+            // Itens de serviço
+            for (ItensServicoDTO item : request.getItensServico()) {
+                Servico servico = servicoService.buscarPorId(item.getServicoId().intValue());
+                Funcionario funcionario = funcionarioService.buscarPorId(item.getFuncionarioId().intValue());
+
+                if (servico == null || funcionario == null) {
+                    return ResponseEntity.status(404).body(new ErrorResponse("Serviço ou Funcionário não encontrado"));
+                }
+
+                double preco = item.getQuantidade() * servico.getPrecoUnitario();
+                precoTotal += preco;
+
+                LocalDateTime inicio = LocalDateTime.parse(item.getHorarioInicio());
+                LocalDateTime fim = LocalDateTime.parse(item.getHorarioFim());
+
+                ItensServico is = new ItensServico(0, inicio, fim, item.getQuantidade(), preco, funcionario, servico, os);
+                itensServicoService.salvar(is);
+            }
+
+            // 5) Atualizar o total e persistir
             os.setPrecoFinal(precoTotal);
             ordemServicoService.atualizar(os);
 
-            // publish event to notify assigned employees
+            // 6) Notificar
             eventPublisher.publishEvent(new OrdemServicoCreatedEvent(this, os, request.getItensServico()));
 
             return ResponseEntity.status(HttpStatus.CREATED).build();
-
         } catch (Exception e) {
+            // Marca a transação explicitamente como rollback
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return ResponseEntity.status(400)
                     .body(new ErrorResponse("Erro ao criar ordem de serviço: " + e.getMessage()));
         }
@@ -175,21 +205,27 @@ public class OrdemServicoController {
                     return ResponseEntity.status(404).body(new ErrorResponse("Peça não encontrada"));
                 }
 
-                // Recuperar a quantidade previamente usada na OS (se existir)
-                int quantidadeAnterior = ordemServicoService.buscarQuantidadePorPecaEOrdemServico(
-                        pecaId, ordemServico.getNumero());
-
-                // Calcular a diferença real
+                // Recuperar item existente e calcular diferença
+                ItensPeca existingItem = existingPecas.stream()
+                        .filter(ip -> ip.getPeca().getId().equals(pecaId))
+                        .findFirst().orElse(null);
+                int quantidadeAnterior = existingItem != null ? existingItem.getQuantidade() : 0;
                 int diferenca = itensPecaRequest.getQuantidade() - quantidadeAnterior;
-
-                // Verificar se há estoque suficiente para a alteração
+                // Verificar estoque apenas para aumento
                 if (diferenca > 0 && peca.getQuantidade() < diferenca) {
                     return ResponseEntity.status(400).body(new ErrorResponse("Estoque insuficiente para a peça"));
                 }
-
-                // Atualizar o estoque com base na diferença
-                peca.setQuantidade(peca.getQuantidade() - diferenca);
-                pecasService.atualizar(peca);
+                // Ajustar estoque apenas se a quantidade foi alterada
+                if (diferenca > 0) {
+                    // Reduzir estoque
+                    peca.setQuantidade(peca.getQuantidade() - diferenca);
+                } else if (diferenca < 0) {
+                    // Restituir estoque
+                    peca.setQuantidade(peca.getQuantidade() + Math.abs(diferenca));
+                }
+                if (diferenca != 0) {
+                    pecasService.atualizar(peca);
+                }
 
                 double precoPecaTotal = itensPecaRequest.getQuantidade() * peca.getPrecoUnitario();
                 precoTotal += precoPecaTotal;
