@@ -65,7 +65,14 @@ public class OrdemServicoController {
         Veiculo veiculo = veiculoService.buscarPorPlaca(os.getPlacaVeiculo().getPlaca());
         List<ItensPeca> pecas = itensPecaService.buscarPorNumeroOs(numero);
         List<ItensServico> servicos = itensServicoService.buscarPorNumeroOs(numero);
+        //System.print com for das pecas e serviços
+        for (ItensPeca peca : pecas) {
+            System.out.println("Peça: " + peca.getPeca().getNome() + ", Quantidade: " + peca.getQuantidade());
+        }
 
+        for (ItensServico servico : servicos) {
+            System.out.println("Serviço: " + servico.getIdServico().getNome() + ", Quantidade: " + servico.getQuantidade());
+        }
         try {
             byte[] pdf = pdfService.gerarPdfOrdemServico(os, cliente, veiculo, pecas, servicos);
             return ResponseEntity.ok()
