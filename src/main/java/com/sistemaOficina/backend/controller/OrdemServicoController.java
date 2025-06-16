@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,8 +147,20 @@ public class OrdemServicoController {
                 double preco = item.getQuantidade() * servico.getPrecoUnitario();
                 precoTotal += preco;
 
-                LocalDateTime inicio = LocalDateTime.parse(item.getHorarioInicio());
-                LocalDateTime fim = LocalDateTime.parse(item.getHorarioFim());
+                LocalDateTime inicio = null;
+                LocalDateTime fim = null;
+
+                try {
+                    if (item.getHorarioInicio() != null && !item.getHorarioInicio().isBlank()) {
+                        inicio = LocalDateTime.parse(item.getHorarioInicio());
+                    }
+                    if (item.getHorarioFim() != null && !item.getHorarioFim().isBlank()) {
+                        fim = LocalDateTime.parse(item.getHorarioFim());
+                    }
+                } catch (DateTimeParseException e) {
+                    return ResponseEntity.status(400)
+                            .body(new ErrorResponse("Formato de data/hora inválido em horário de serviço."));
+                }
 
                 ItensServico is = new ItensServico(0, inicio, fim, item.getQuantidade(), preco, funcionario, servico, os);
                 itensServicoService.salvar(is);
