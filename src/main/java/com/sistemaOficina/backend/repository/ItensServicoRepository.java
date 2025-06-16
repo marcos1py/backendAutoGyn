@@ -19,4 +19,6 @@ public interface ItensServicoRepository extends JpaRepository<ItensServico, Inte
     
     @Query("SELECT i FROM ItensServico i WHERE MONTH(i.horarioInicio) = :mes AND YEAR(i.horarioInicio) = YEAR(CURRENT_DATE) AND UPPER(i.funcionario.nome) = UPPER(:nomeFuncionario)")
     List<ItensServico> findByMesAnoAtualAndFuncionarioNome(@Param("mes") int mes, @Param("nomeFuncionario") String nomeFuncionario);
+    
+    List<ItensServico> findByNumeroOs_Numero(Integer numeroOs);
 }

@@ -41,4 +41,9 @@ public class ModeloServiceImpl implements ModeloService {
     public List<Modelo> buscarTodos() {
         return modeloRepository.findAll();
     }
+    
+    @Override
+    public List<Modelo> findByMarcaId(Integer id) {
+        return modeloRepository.findByMarcaId(id);
+    }
 }

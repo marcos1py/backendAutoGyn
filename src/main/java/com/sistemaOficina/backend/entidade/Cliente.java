@@ -56,8 +56,15 @@ public class Cliente {
         this.nome = nome;
     }
 
-    
 
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
+    }
+    
     public String getNumero1() {
         return numero1;
     }
@@ -65,7 +72,6 @@ public class Cliente {
     public void setNumero1(String numero1) {
         this.numero1 = numero1;
     }
-
 
     public String getNumero2() {
         return numero2;
@@ -106,7 +112,7 @@ public class Cliente {
     public void setTipoCliente(String tipoCliente) {
         this.tipoCliente = tipoCliente;
     }
-
+    
 	public String getCep() {
 		return cep;
 	}
@@ -115,13 +121,7 @@ public class Cliente {
 		this.cep = cep;
 	}
 
-	public String getEndereco() {
-		return endereco;
-	}
-
-	public void setEndereco(String endereco) {
-		this.endereco = endereco;
-	}
     
 	
+
 }

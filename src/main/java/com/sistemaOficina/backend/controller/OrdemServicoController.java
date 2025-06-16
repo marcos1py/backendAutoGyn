@@ -138,6 +138,26 @@ public class OrdemServicoController {
                     .body(new ErrorResponse("Erro ao criar ordem de serviço: " + e.getMessage()));
         }
     }
+    
+    @GetMapping("/{numero}/pecas")
+    	public ResponseEntity<?> buscarPecasPorNumeroOs(@PathVariable Integer numero) {
+		List<ItensPeca> pecas = itensPecaService.buscarPorNumeroOs(numero);
+		if (pecas.isEmpty()) {
+			return ResponseEntity.status(404)
+					.body(new ErrorResponse("Nenhuma peça encontrada para esta ordem de serviço"));
+		}
+		return ResponseEntity.ok(pecas);
+    }
+    
+    @GetMapping("/{numero}/servicos")
+	public ResponseEntity<?> buscarServicosPorNumeroOs(@PathVariable Integer numero) {
+		List<ItensServico> servicos = itensServicoService.buscarPorNumeroOs(numero);
+		if (servicos.isEmpty()) {
+			return ResponseEntity.status(404)
+					.body(new ErrorResponse("Nenhum serviço encontrado para esta ordem de serviço"));
+		}
+		return ResponseEntity.ok(servicos);
+	}
 
     @PutMapping("/{numero}")
     @Transactional

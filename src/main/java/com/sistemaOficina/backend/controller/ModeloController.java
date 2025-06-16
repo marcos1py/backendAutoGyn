@@ -82,4 +82,10 @@ public class ModeloController {
         List<Modelo> modelos = modeloService.buscarTodos();
         return ResponseEntity.ok(modelos);
     }
+    
+    @GetMapping("/marcas/{id}")
+    public ResponseEntity<List<Modelo>> findByMarcaId(@PathVariable Integer id) {
+        List<Modelo> modelos = modeloService.findByMarcaId(id);
+        return ResponseEntity.ok(modelos);
+    }
 }

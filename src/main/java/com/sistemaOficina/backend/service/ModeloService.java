@@ -10,4 +10,5 @@ public interface ModeloService {
     void deletar(Integer id);
     Modelo buscarPorId(Integer id);
     List<Modelo> buscarTodos();
+    List<Modelo> findByMarcaId(Integer id);
 }
