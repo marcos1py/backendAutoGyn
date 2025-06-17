@@ -1,12 +1,11 @@
 package com.sistemaOficina.backend.service.Implemente;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.sistemaOficina.backend.entidade.Modelo;
 import com.sistemaOficina.backend.repository.ModeloRepository;
 import com.sistemaOficina.backend.service.ModeloService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ModeloServiceImpl implements ModeloService {
@@ -36,6 +35,12 @@ public class ModeloServiceImpl implements ModeloService {
     public Modelo buscarPorId(Integer id) {
         return modeloRepository.findById(id).orElse(null);
     }
+
+    @Override
+    public List<Modelo> buscarPorIdMarca(Integer id) {
+        return modeloRepository.findByMarcaId(id);
+    }
+
 
     @Override
     public List<Modelo> buscarTodos() {
