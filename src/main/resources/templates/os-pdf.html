@@ -24,8 +24,8 @@
     <h2>Cliente</h2>
     <p>
         <strong th:text="${cliente.nome}"></strong><br/>
-        <span th:text="${cliente.logradouro + ', ' + cliente.numero}"></span>
-        <span th:if="${cliente.complemento != null && !cliente.complemento.isEmpty()}" th:text="${' - ' + cliente.complemento}"></span><br/>
+        <span th:text="${cliente.endereco}"></span>
+        <span th:if="${cliente.cep != null && !cliente.cep.isEmpty()}" th:text="${' - CEP: ' + cliente.cep}"></span><br/>
         <span th:if="${cliente.cpf != null && !cliente.cpf.isEmpty()}">CPF: <span th:text="${cliente.cpf}"></span></span>
         <span th:if="${cliente.cnpj != null && !cliente.cnpj.isEmpty()}">CNPJ: <span th:text="${cliente.cnpj}"></span></span><br/>
         Telefone: <span th:text="${cliente.numero1}"></span>
