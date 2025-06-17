@@ -314,6 +314,18 @@ public class OrdemServicoController {
         }
         return ResponseEntity.ok(os);
     }
+    
+    @DeleteMapping("/{itemPecaId}/itensPeca")
+    public ResponseEntity<?> deleteItemPeca(@PathVariable Integer itemPecaId){
+    	this.itensPecaService.deletar(itemPecaId);
+    	return ResponseEntity.noContent().build();
+    }
+    
+    @DeleteMapping("/{itemServicoId}/itensServico")
+    public ResponseEntity<?> deleteItemServico(@PathVariable Integer itemServicoId){
+    	this.itensServicoService.deletar(itemServicoId);
+    	return ResponseEntity.noContent().build();
+    }
 
     @GetMapping("/{numeroOs}/itensPeca")
     public ResponseEntity<List<ItensPeca>> buscarItensPecaPorNumeroOs(@PathVariable Integer numeroOs) {
