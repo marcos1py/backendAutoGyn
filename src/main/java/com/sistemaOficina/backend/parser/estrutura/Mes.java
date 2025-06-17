@@ -7,28 +7,34 @@ public class Mes {
     private String nome;
     
     private static final Set<String> MESES_VALIDOS = Set.of(
-        "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-        "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+        "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
+        "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"
     );
     
+    public static boolean isValid(String test) {
+        System.out.printf("testing %s in %s\n", test, MESES_VALIDOS.toString());
+        return MESES_VALIDOS.contains(test.toUpperCase());
+    }
+
     private static final Map<String, Integer> MESES_MAP = new HashMap<>();
     
     static {
-        MESES_MAP.put("Janeiro", 1);
-        MESES_MAP.put("Fevereiro", 2);
-        MESES_MAP.put("Março", 3);
-        MESES_MAP.put("Abril", 4);
-        MESES_MAP.put("Maio", 5);
-        MESES_MAP.put("Junho", 6);
-        MESES_MAP.put("Julho", 7);
-        MESES_MAP.put("Agosto", 8);
-        MESES_MAP.put("Setembro", 9);
-        MESES_MAP.put("Outubro", 10);
-        MESES_MAP.put("Novembro", 11);
-        MESES_MAP.put("Dezembro", 12);
+        MESES_MAP.put("JANEIRO", 1);
+        MESES_MAP.put("FEVEREIRO", 2);
+        MESES_MAP.put("MARÇO", 3);
+        MESES_MAP.put("ABRIL", 4);
+        MESES_MAP.put("MAIO", 5);
+        MESES_MAP.put("JUNHO", 6);
+        MESES_MAP.put("JULHO", 7);
+        MESES_MAP.put("AGOSTO", 8);
+        MESES_MAP.put("SETEMBRO", 9);
+        MESES_MAP.put("OUTUBRO", 10);
+        MESES_MAP.put("NOVEMBRO", 11);
+        MESES_MAP.put("DEZEMBRO", 12);
     }
     
     public Mes(String nome) {
+        nome = nome.toUpperCase();
         if (!MESES_VALIDOS.contains(nome)) {
             throw new IllegalArgumentException("Mês inválido: " + nome);
         }
@@ -44,6 +50,7 @@ public class Mes {
     }
     
     public static int converterParaNumero(String nomeMes) {
+        nomeMes = nomeMes.toUpperCase();
         if (!MESES_VALIDOS.contains(nomeMes)) {
             throw new IllegalArgumentException("Mês inválido: " + nomeMes);
         }
